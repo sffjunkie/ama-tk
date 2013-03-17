@@ -15,7 +15,6 @@
 import sys
 import os.path
 p = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-print(p)
 sys.path.insert(0, p)
 
 from pprint import pprint
