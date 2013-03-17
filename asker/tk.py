@@ -83,6 +83,8 @@ class TkAsker(Asker):
         #self._help_window = None
         #self._help_window.withdraw()
         
+        self.root.protocol('WM_DELETE_WINDOW', self._cancel)
+        
         self._result = {}
     
     def add_question(self, key, question):
