@@ -1,0 +1,11 @@
+Integer
+String
+Float
+Checkbox
+Date
+Time
+DateTime
+TrueFalse
+TrueFalseNone
+YesNo
+YesNoNone
