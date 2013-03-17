@@ -86,6 +86,9 @@ class TkAsker(Asker):
         
         self.root.protocol('WM_DELETE_WINDOW', self._cancel)
         
+        if sys.platform.startswith('darwin'):
+            self.root.createcommand("::tk::mac::Quit", self._cancel)
+        
         self._result = {}
     
     def add_question(self, key, question):
