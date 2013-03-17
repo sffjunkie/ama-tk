@@ -44,7 +44,8 @@ class TkAsker(Asker):
         self.root = tk.Tk()
         self.root.title(self._title)
 
-        header_font = font.Font(family='TkDefaultFont', size=10, weight='bold')
+        header_font = font.Font(family='TkDefaultFont')
+        header_font.configure(weight='bold')
         header = ttk.Label(self.root, text=self._preamble, padding=3, font=header_font)
         header.grid(column=0, row=0, sticky=(tk.N, tk.EW))
         
