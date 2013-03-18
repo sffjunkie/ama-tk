@@ -17,6 +17,11 @@ try:
 except ImportError:
     pass
 
+try:
+    input = raw_input
+except:
+    pass
+
 from collections import OrderedDict
 
 from asker import Asker
@@ -78,7 +83,7 @@ class TerminalAsker(Asker):
         prompt = '%s%s: ' % (question.label, prompt_tail)
             
         while True:
-            answer = raw_input(cyan(prompt))
+            answer = input(cyan(prompt))
             stripped = answer.strip()
             if stripped == '?':
                 print(question.help_text)
