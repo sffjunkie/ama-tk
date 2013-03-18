@@ -13,11 +13,12 @@
 # limitations under the License.
 
 import json
+from string import Formatter
 from collections import namedtuple, OrderedDict
 
-_Question = namedtuple('question', 'key label type default help_text validator needs_format')
-def Question(key, label, answer_type='str', default=None, help_text='', validator=None, needs_format=False):
-    return _Question(key, label, answer_type, default, help_text, validator, needs_format)
+_Question = namedtuple('question', 'key label type default help_text validator depends_on')
+def Question(key, label, answer_type='str', default=None, help_text='', validator=None, depends_on=[]):
+    return _Question(key, label, answer_type, default, help_text, validator, depends_on)
 
 
 class Asker(object):
@@ -61,17 +62,10 @@ class Asker(object):
             if all_questions or key not in initial_answers:
                 default = initial_answers.get(key, question[2])
                 
-                # When a question
-                needs_format = False
-                try:
-                    formatted_default = default.format(**initial_answers)
-                    if formatted_default != default:
-                        needs_format = True
-                except:
-                    pass
+                depends_on = self._find_dependencies(default)
                 
                 q = Question(key, question[0], question[1],
-                             default, question[3], needs_format)
+                             default, question[3], depends_on)
                 self.add_question(key, q)
 
         result = self.go(initial_answers)
@@ -79,4 +73,15 @@ class Asker(object):
 
     def go(self):
         raise NotImplemented
+    
+    def _find_dependencies(self, default):
+        """Returns a list of fields the default uses""" 
+        
+        f = Formatter()
+        dependencies = []
+        for _text, field, _format_spec, _conversion in f.parse(default):
+            if field is not None:
+                dependencies.append(field)
+        
+        return dependencies
     
