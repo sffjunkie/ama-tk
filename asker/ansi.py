@@ -33,8 +33,13 @@ def create_color_func(intensity, name):
     else:
         globals()['%s_%s' % (intensity, name)] = inner
 
-# DIM, NORMAL, BRIGHT
-for intensity in [x for x in colorama.Style.__dict__.keys() if x!='RESET_ALL']:
-    # BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
-    for fore in [x for x in colorama.Fore.__dict__.keys() if x!='RESET']:
+if COLOR:
+    intensities = [x for x in colorama.Style.__dict__.keys() if x!='RESET_ALL']
+    colours = [x for x in colorama.Fore.__dict__.keys() if x!='RESET']
+else:
+    intensities = ['DIM', 'NORMAL', 'BRIGHT']
+    colours = ['BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE']
+
+for intensity in intensities:
+    for fore in colours:
         create_color_func(intensity.lower(), fore.lower())
