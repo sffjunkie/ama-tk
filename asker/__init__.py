@@ -65,7 +65,8 @@ class Asker(object):
                 depends_on = self._find_dependencies(default)
                 
                 q = Question(key, question[0], question[1],
-                             default, question[3], depends_on)
+                             default, question[3], question[4],
+                             depends_on)
                 self.add_question(key, q)
 
         result = self.go(initial_answers)
