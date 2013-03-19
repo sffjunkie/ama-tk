@@ -16,6 +16,8 @@ import json
 from string import Formatter
 from collections import namedtuple, OrderedDict
 
+from asker.validator import Validators
+
 _Question = namedtuple('question', 'key label type default help_text validator depends_on')
 def Question(key, label, answer_type='str', default=None, help_text='', validator=None, depends_on=[]):
     return _Question(key, label, answer_type, default, help_text, validator, depends_on)

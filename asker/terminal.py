@@ -25,8 +25,8 @@ except:
 from collections import OrderedDict
 
 from asker import Asker
-from asker.validator import Validators, validate_bool
-from asker.ansi import bright_green, cyan, red
+from asker.validator import validate_bool
+from asker.ansi import bright_green, cyan, bright_red
 
 class TerminalAsker(Asker):
     def __init__(self, title, preamble='', filename=''):
@@ -96,7 +96,7 @@ class TerminalAsker(Asker):
             try:
                 answer = self.validate(answer, question.type, question.validator)
             except Exception as err:
-                print(red('* ' + str(err)))
+                print(bright_red('* ' + str(err)))
                 print(question.help_text)
                 continue
             break
