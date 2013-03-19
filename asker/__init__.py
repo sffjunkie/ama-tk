@@ -74,6 +74,22 @@ class Asker(object):
 
     def go(self):
         raise NotImplemented
+
+    def validate(self, value, type_, validator):
+        type_validator = Validators[type_]
+        
+        custom_validator = None
+        if validator is not None:
+            custom_validator = Validators[validator]
+        
+        if type_validator is None and custom_validator is not None:
+            return value
+        else:
+            v1 = type_validator(value)
+            if custom_validator is not None:
+                return custom_validator(v1)
+            else:
+                return v1
     
     def _find_dependencies(self, default):
         """Returns a list of fields the default uses""" 
