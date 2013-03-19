@@ -80,10 +80,6 @@ class TkAsker(Asker):
         okcancel.grid(column=0, row=2, sticky=(tk.E, tk.W, tk.S))
         self.root.rowconfigure(2, weight=1)
         
-        #self._help_visible = False
-        #self._help_window = None
-        #self._help_window.withdraw()
-        
         self.root.protocol('WM_DELETE_WINDOW', self._cancel)
         
         if sys.platform.startswith('darwin'):
@@ -120,22 +116,6 @@ class TkAsker(Asker):
     def _cancel(self, event=None):
         self._result['result'] = 'cancel'
         self.root.destroy()
-    
-    def toggle_help(self, event):
-        if self._help_visible:
-            try:
-                self._asker._help_window.withdraw()
-            except:
-                pass
-            self._help_visible = False
-        else:
-            self._help_window.deiconify()
-            self._help_visible = True
-            
-    def _help_closed(self):
-        self._help_window.destroy()
-        self._help_window = None
-        self._help_visible = False
 
 
 class TkQuestion(object):
@@ -147,6 +127,8 @@ class TkQuestion(object):
 
         self.label = ttk.Label(asker.content, text=label)
         self.label.grid(column=0, row=self._row*2, sticky=(tk.N, tk.S, tk.W), padx=(0,5))
+        
+        self._validate_integer_command = (asker.root.register(self._validate_integer), '%P', '%S', '%V', '%W')
 
         if type_ == 'str':
             self.value = tk.StringVar()
@@ -189,16 +171,8 @@ class TkQuestion(object):
         self.err_label = ttk.Label(asker.content, font=error_font, text=' ', width=1, foreground='red')
         self.err_label.grid(column=2, row=self._row*2)
         
-        #if help_text != '':
-        #    self.button = ttk.Button(asker.content, text='?', width=4)
-        #    self.button.grid(column=3, row=self._row*2, sticky=(tk.N, tk.S, tk.E), padx=(5,0))
-        #    self.button.bind('<Button-1>', self.toggle_help)
-        
         asker.content.rowconfigure(self._row, weight=0)
         asker.content.rowconfigure((self._row*2) + 1, weight=1)
-    
-    def toggle_help(self, event):
-        self._asker.toggle_help(event)
         
     def invalid(self, invalid=True):
         if invalid:
@@ -206,6 +180,10 @@ class TkQuestion(object):
         else:
             self.err_label['text'] = ' '   
     
-    def _validate_integer(self, P, S, W):
+    def _validate_integer(self, P, S, V, W):
+        if V == 'focusout':
+            pass
+        
         return True
+    
 
