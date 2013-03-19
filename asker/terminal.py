@@ -66,7 +66,8 @@ class TerminalAsker(Asker):
     def ask_question(self, question, initial_answers, answers):
         prompt_tail = ''
         if question.type == 'yesno':
-            prompt_tail = ' (y/n)'
+            if not question.label.endswith(' (y/n)'):
+                prompt_tail = ' (y/n)'
             if question.default == True or question.default == 'y':
                 prompt_tail += ' [y]'
             elif question.default == False or question.default == 'n':
