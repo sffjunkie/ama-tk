@@ -89,10 +89,7 @@ class TkAsker(Asker):
     
     def add_question(self, key, question):
         tkq = TkQuestion(self, self._row,
-                         question.label, question.type,
-                         question.type,
-                         question.default, question.help_text,
-                         question.validator)
+                         question)
         self._ask[key] = tkq
         self._row = self._row + 1
 
@@ -106,7 +103,7 @@ class TkAsker(Asker):
         
         answers = {}
         for key, tkq in self._ask.items():
-            answer = Validators[tkq._type](tkq.value.get())
+            answer = self.validate(tkq._value.get(), tkq._type, None)
             answers[key] = answer
             
         self._result['answers'] = answers
@@ -119,71 +116,110 @@ class TkAsker(Asker):
 
 
 class TkQuestion(object):
-    def __init__(self, asker, row, label, type_, valid, default, help_text='', validator=None):
-        self.value = None
+    def __init__(self, asker, row, question):
+        self._label = question.label
+        self._type = question.type
+        self._valid = question.type
+        self._default = question.default
+        self._validator = question.validator
+        self._value = None
         self._asker = asker
         self._row = row
-        self._type = type_
+        self._edited = False
 
-        self.label = ttk.Label(asker.content, text=label)
+        self.label = ttk.Label(asker.content, text=self._label)
         self.label.grid(column=0, row=self._row*2, sticky=(tk.N, tk.S, tk.W), padx=(0,5))
         
-        self._validate_integer_command = (asker.root.register(self._validate_integer), '%P', '%S', '%V', '%W')
+        self._validate_integer = (asker.root.register(self._tk_validate), '%P', '%S')
 
-        if type_ == 'str':
-            self.value = tk.StringVar()
-            self.value.set(default)
-            self.entry = ttk.Entry(asker.content, textvariable=self.value)
+        if self._type == 'str':
+            self._value = tk.StringVar()
+            self._value.set(self._default)
+            self.entry = ttk.Entry(asker.content, textvariable=self._value)
             
-        elif type_ == 'bool' or type_ == 'yesno' or isinstance(valid, bool):
-            self.value = tk.BooleanVar()
+        elif self._type == 'bool' or self._type == 'yesno' or isinstance(self._valid, bool):
+            self._value = tk.BooleanVar()
             self.entry = ttk.Frame(asker.content)
-            y = ttk.Radiobutton(self.entry, text='Yes', variable=self.value, value=True)
+            y = ttk.Radiobutton(self.entry, text='Yes', variable=self._value, value=True)
             y.grid(column=0, row=0, padx=(0,5))
-            n = ttk.Radiobutton(self.entry, text='No', variable=self.value, value=False)
-            self.value.set(Validators['yesno'](default))
+            n = ttk.Radiobutton(self.entry, text='No', variable=self._value, value=False)
+            self._value.set(Validators['yesno'](self._default))
             n.grid(column=1, row=0)
             
-        elif type_ == 'int' or isinstance(valid, int):
-            self.value = tk.IntVar()
-            self.entry = ttk.Entry(asker.content)
+        elif self._type == 'int' or isinstance(self._valid, int):
+            self._value = tk.IntVar()
+            self.entry = ttk.Entry(asker.content, validate='all',
+                                   validatecommand=self._validate_integer)
             self.entry.configure(width=30)
-            
-        elif isinstance(valid, list):
-            self.value = tk.StringVar()
-            if len(valid) <= 3:
+
+        elif isinstance(self._valid, list):
+            self._value = tk.StringVar()
+            if len(self._valid) <= 3:
                 self.entry = ttk.Frame(asker.content)
-                for idx in range(len(valid)):
-                    e = valid[idx]
-                    rb = ttk.Radiobutton(self.entry, text=str(e), variable=self.value, value=str(e))
+                for idx, e in enumerate(self._valid):
+                    rb = ttk.Radiobutton(self.entry, text=str(e), variable=self._value, value=str(e))
                     rb.grid(column=idx, row=0, padx=(0,5))
             else:
-                self.entry = ttk.Combobox(asker.content, textvariable=self.value)
-                self.entry['values'] = tuple(valid)
-            self.value.set(str(valid[0]))
+                self.entry = ttk.Combobox(asker.content, textvariable=self._value)
+                self.entry['values'] = tuple(self._valid)
+            self._value.set(str(self._valid[0]))
             
         else:
-            raise ValueError('Unable to create entry widget valid=%s' % valid)
+            raise ValueError('Unable to create entry widget valid=%s' % self._valid)
             
         self.entry.grid(column=1, row=self._row*2, sticky=tk.EW)
         
         error_font = font.Font(family='TkFixedFont', size=10, weight='bold')
         self.err_label = ttk.Label(asker.content, font=error_font, text=' ', width=1, foreground='red')
-        self.err_label.grid(column=2, row=self._row*2)
+        self.err_label.grid(column=2, row=self._row*2, padx=(3,0))
         
         asker.content.rowconfigure(self._row, weight=0)
         asker.content.rowconfigure((self._row*2) + 1, weight=1)
         
-    def invalid(self, invalid=True):
-        if invalid:
-            self.err_label['text'] = '*'
-        else:
-            self.err_label['text'] = ' '   
-    
-    def _validate_integer(self, P, S, V, W):
-        if V == 'focusout':
-            pass
+    def update(self, answers):
+        if not self._edited:
+            self._value.set(self._default.format(**answers))
         
-        return True
+    def value():
+        def fget(self):
+            return self._value.get()
+        
+        def fset(self, value):
+            try:
+                value = self._asker.validate(value, self._type, self._validator)
+                self._value.set(value)
+            except:
+                raise ValueError
+                
+        return locals()
     
-
+    value = property(**value())
+        
+    def valid():
+        def fset(self, value):
+            if value:
+                self.err_label['text'] = ' '
+            else:
+                self.err_label['text'] = '!'
+                
+        return locals()
+    
+    valid = property(**valid())
+    
+    def _tk_validate(self, P, S):
+        print('valiodate')
+        if S == 'focusout':
+            try:
+                if self._type == 'str':
+                    _value = str(P)
+                else:
+                    _value = int(P)
+                    
+                self.valid = True
+                return True
+            except:
+                self.valid = False
+                return False
+        elif S == 'key':
+            self._edited = True
+    
