@@ -96,7 +96,7 @@ class TerminalAsker(Asker):
             try:
                 answer = self.validate(answer, question.type, question.validator)
             except Exception as err:
-                print(bright_red('* ' + str(err)))
+                print(bright_red('* %s\n' % str(err)))
                 print(question.help_text)
                 continue
             break
