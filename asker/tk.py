@@ -134,23 +134,28 @@ class TkQuestion(object):
 
         if self._type == 'str':
             self._value = tk.StringVar()
-            self._value.set(self._default)
             self.entry = ttk.Entry(asker.content, textvariable=self._value)
+
+            self.value = self._default
             
         elif self._type == 'bool' or self._type == 'yesno' or isinstance(self._valid, bool):
             self._value = tk.BooleanVar()
             self.entry = ttk.Frame(asker.content)
             y = ttk.Radiobutton(self.entry, text='Yes', variable=self._value, value=True)
             y.grid(column=0, row=0, padx=(0,5))
+            
             n = ttk.Radiobutton(self.entry, text='No', variable=self._value, value=False)
-            self._value.set(Validators['yesno'](self._default))
             n.grid(column=1, row=0)
+            
+            self.value = Validators['yesno'](self._default)
             
         elif self._type == 'int' or isinstance(self._valid, int):
             self._value = tk.IntVar()
             self.entry = ttk.Entry(asker.content, validate='all',
                                    validatecommand=self._validate_integer)
             self.entry.configure(width=30)
+            
+            self.value = Validators['int'](self._default)
 
         elif isinstance(self._valid, list):
             self._value = tk.StringVar()
@@ -162,7 +167,8 @@ class TkQuestion(object):
             else:
                 self.entry = ttk.Combobox(asker.content, textvariable=self._value)
                 self.entry['values'] = tuple(self._valid)
-            self._value.set(str(self._valid[0]))
+                
+            self.value = str(self._valid[0])
             
         else:
             raise ValueError('Unable to create entry widget valid=%s' % self._valid)
