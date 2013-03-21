@@ -45,6 +45,15 @@ def validate_bool(value):
         return False
     else:
         raise ValidationError
+    
+def validate_int(value):
+    if value == '':
+        return 0
+    
+    try:
+        return int(value)
+    except:
+        raise ValidationError('Please enter an integer value')
 
 def validate_path(value):
     if path.exists(value) and not path.isdir(value):
@@ -61,6 +70,7 @@ class ValidatorRegistry():
     def __init__(self):
         self._validators = {
             'str': lambda value: str(value),
+            'int': validate_int,
             'bool': validate_bool,
             'path': validate_path,
             'nonempty': validate_nonempty,
