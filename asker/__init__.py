@@ -31,6 +31,9 @@ class Asker(object):
                 self._questions = json.loads(data, object_pairs_hook=OrderedDict)
         else:
             self._questions = None
+            
+        self.depends_on = {}
+        self.depends_on_us = {}
     
     def ask(self, questions=None, initial_answers=None, all_questions=True, validators={}):
         """Ask the questions and return the answers
@@ -65,6 +68,12 @@ class Asker(object):
                 default = initial_answers.get(key, question[2])
                 
                 depends_on = self._find_dependencies(default)
+                if len(depends_on) != 0:
+                    self.depends_on[key] = depends_on
+                    for dep in depends_on:
+                        if dep not in self.depends_on_us:
+                            self.depends_on_us[dep] = []
+                        self.depends_on_us[dep].append(key)
                 
                 q = Question(key, question[0], question[1],
                              default, question[3], question[4],
