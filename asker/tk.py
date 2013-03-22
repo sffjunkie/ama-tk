@@ -133,8 +133,8 @@ class TkQuestion(object):
         self.label.grid(column=0, row=self._row*2, sticky=(tk.N, tk.S, tk.W),
                         padx=(0,5))
         
-        self._validate_integer = (asker.root.register(self._tk_validate),
-                                  '%P', '%S')
+        self._validate = (asker.root.register(self._tk_validate),
+                                  '%P', '%V')
 
         if self._type == 'str':
             self._value = tk.StringVar()
@@ -156,13 +156,18 @@ class TkQuestion(object):
             
             self.value = Validators['yesno'](self._default)
             
-        elif self._type == 'int' or isinstance(self._valid, int):
-            self._value = tk.IntVar()
-            self.entry = ttk.Entry(asker.content, validate='all',
-                                   validatecommand=self._validate_integer)
+        elif self._type == 'int' or self._type == 'float' or isinstance(self._valid, (int, float)):
+            if self._type == 'int':
+                self._value = tk.IntVar()
+                self.value = Validators['int'](self._default)
+            elif self._type == 'float':
+                self._value = tk.DoubleVar()
+                self.value = Validators['float'](self._default)
+                
+            self.entry = ttk.Entry(asker.content,
+                                   validate='all',
+                                   validatecommand=self._validate)
             self.entry.configure(width=30)
-            
-            self.value = Validators['int'](self._default)
 
         elif isinstance(self._valid, list):
             self._value = tk.StringVar()
@@ -181,7 +186,7 @@ class TkQuestion(object):
             
         else:
             raise ValueError(('Unable to create entry widget '
-                              'valid=%s' % self._valid)
+                              'valid=%s') % self._valid)
             
         self.entry.grid(column=1, row=self._row*2, sticky=tk.EW)
         
@@ -211,7 +216,7 @@ class TkQuestion(object):
         return locals()
     
     value = property(**value())
-        
+
     def valid():
         def fset(self, value):
             if value:
@@ -220,23 +225,25 @@ class TkQuestion(object):
                 self.err_label['text'] = '!'
                 
         return locals()
-    
+
     valid = property(**valid())
-    
-    def _tk_validate(self, P, S):
-        print('valiodate')
-        if S == 'focusout':
+
+    def _tk_validate(self, P, V):
+        if V == 'focusout':
             try:
-                if self._type == 'str':
-                    _value = str(P)
-                else:
+                if self._type == 'int':
                     _value = int(P)
-                    
+                elif self._type == 'float':
+                    _value = float(P)
                 self.valid = True
-                return True
+                return 1
             except:
                 self.valid = False
-                return False
-        elif S == 'key':
-            self._edited = True
-    
+                return 0
+        elif V == 'key':
+            if not self._edited:
+                self._edited = True
+            return 1
+        else:
+            return 1
+
