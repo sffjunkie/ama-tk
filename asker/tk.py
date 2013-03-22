@@ -46,7 +46,8 @@ class TkAsker(Asker):
 
         header_font = font.Font(family='TkDefaultFont')
         header_font.configure(weight='bold')
-        header = ttk.Label(self.root, text=self._preamble, padding=3, font=header_font)
+        header = ttk.Label(self.root, text=self._preamble, padding=3,
+                           font=header_font)
         header.grid(column=0, row=0, sticky=(tk.N, tk.EW))
         
         self.content = ttk.Frame(self.root, padding=(3,3,3,3))
@@ -70,7 +71,8 @@ class TkAsker(Asker):
             
         ok = ttk.Button(okcancel, text='OK', width=10, command=self._ok)
         ok.grid(column=btn_column[0], row=0, padx=(6, 0))
-        cancel = ttk.Button(okcancel, text='Cancel', width=10, command=self._cancel)
+        cancel = ttk.Button(okcancel, text='Cancel', width=10,
+                            command=self._cancel)
         cancel.grid(column=btn_column[1], row=0, padx=(6, 0))
 
         okcancel.columnconfigure(0, weight=1)
@@ -128,9 +130,11 @@ class TkQuestion(object):
         self._edited = False
 
         self.label = ttk.Label(asker.content, text=self._label)
-        self.label.grid(column=0, row=self._row*2, sticky=(tk.N, tk.S, tk.W), padx=(0,5))
+        self.label.grid(column=0, row=self._row*2, sticky=(tk.N, tk.S, tk.W),
+                        padx=(0,5))
         
-        self._validate_integer = (asker.root.register(self._tk_validate), '%P', '%S')
+        self._validate_integer = (asker.root.register(self._tk_validate),
+                                  '%P', '%S')
 
         if self._type == 'str':
             self._value = tk.StringVar()
@@ -138,13 +142,16 @@ class TkQuestion(object):
 
             self.value = self._default
             
-        elif self._type == 'bool' or self._type == 'yesno' or isinstance(self._valid, bool):
+        elif self._type == 'bool' or self._type == 'yesno' or \
+            isinstance(self._valid, bool):
             self._value = tk.BooleanVar()
             self.entry = ttk.Frame(asker.content)
-            y = ttk.Radiobutton(self.entry, text='Yes', variable=self._value, value=True)
+            y = ttk.Radiobutton(self.entry, text='Yes',
+                                variable=self._value, value=True)
             y.grid(column=0, row=0, padx=(0,5))
             
-            n = ttk.Radiobutton(self.entry, text='No', variable=self._value, value=False)
+            n = ttk.Radiobutton(self.entry, text='No',
+                                variable=self._value, value=False)
             n.grid(column=1, row=0)
             
             self.value = Validators['yesno'](self._default)
@@ -162,21 +169,25 @@ class TkQuestion(object):
             if len(self._valid) <= 3:
                 self.entry = ttk.Frame(asker.content)
                 for idx, e in enumerate(self._valid):
-                    rb = ttk.Radiobutton(self.entry, text=str(e), variable=self._value, value=str(e))
+                    rb = ttk.Radiobutton(self.entry, text=str(e),
+                                         variable=self._value, value=str(e))
                     rb.grid(column=idx, row=0, padx=(0,5))
             else:
-                self.entry = ttk.Combobox(asker.content, textvariable=self._value)
+                self.entry = ttk.Combobox(asker.content,
+                                          textvariable=self._value)
                 self.entry['values'] = tuple(self._valid)
                 
             self.value = str(self._valid[0])
             
         else:
-            raise ValueError('Unable to create entry widget valid=%s' % self._valid)
+            raise ValueError(('Unable to create entry widget '
+                              'valid=%s' % self._valid)
             
         self.entry.grid(column=1, row=self._row*2, sticky=tk.EW)
         
         error_font = font.Font(family='TkFixedFont', size=10, weight='bold')
-        self.err_label = ttk.Label(asker.content, font=error_font, text=' ', width=1, foreground='red')
+        self.err_label = ttk.Label(asker.content, font=error_font, text=' ',
+                                   width=1, foreground='red')
         self.err_label.grid(column=2, row=self._row*2, padx=(3,0))
         
         asker.content.rowconfigure(self._row, weight=0)
