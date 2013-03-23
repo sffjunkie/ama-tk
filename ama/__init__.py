@@ -18,9 +18,13 @@ from collections import namedtuple, OrderedDict
 
 from ama.validator import Validators
 
-_Question = namedtuple('question', 'key label type default help_text validator depends_on')
-def Question(key, label, answer_type='str', default=None, help_text='', validator=None, depends_on=[]):
-    return _Question(key, label, answer_type, default, help_text, validator, depends_on)
+_Question = namedtuple('question',
+                       'key label type default help_text validator depends_on')
+
+def Question(key, label, answer_type='str', default=None, help_text='',
+             validator=None, depends_on=[]):
+    return _Question(key, label, answer_type, default, help_text, validator,
+                     depends_on)
 
 
 class Asker(object):
@@ -28,14 +32,16 @@ class Asker(object):
         if filename != '':
             with open(filename) as fp:
                 data = fp.read()
-                self._questions = json.loads(data, object_pairs_hook=OrderedDict)
+                self._questions = json.loads(data,
+                                             object_pairs_hook=OrderedDict)
         else:
             self._questions = None
             
         self.depends_on = {}
         self.depends_on_us = {}
     
-    def ask(self, questions=None, initial_answers=None, all_questions=True, validators={}):
+    def ask(self, questions=None, initial_answers=None, all_questions=True,
+            validators={}):
         """Ask the questions and return the answers
         
         :param questions: The questions to prompt for answers. Can either be
