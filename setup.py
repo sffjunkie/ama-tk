@@ -21,6 +21,6 @@ setup(name='ama',
     author_email='code@sffjunkie.co.uk',
     url="http://www.sffjunkie.co.uk/python-ama.html",
     license='Apache-2.0',
-    py_modules=['ama.terminal', 'ama.tk', 'ama.validator', 'ama.ansi'],
+    py_modules=['ama.terminal', 'ama.tk', 'ama.validator', 'ama.color'],
     extras_require={'color': ['colorama']}
 )
