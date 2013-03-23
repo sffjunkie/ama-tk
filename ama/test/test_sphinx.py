@@ -4,7 +4,7 @@ p = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, p)
 
 from pprint import pprint
-from asker.terminal import TerminalAsker
+from ama.terminal import TerminalAsker
 
 def test_Console():
     version = '1.1.3'

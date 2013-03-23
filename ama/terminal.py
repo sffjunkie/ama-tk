@@ -24,9 +24,9 @@ except:
 
 from collections import OrderedDict
 
-from asker import Asker
-from asker.validator import validate_bool
-from asker.ansi import bright_green, cyan, bright_red
+from ama import Asker
+from ama.validator import validate_bool
+from ama.ansi import bright_green, cyan, bright_red
 
 class TerminalAsker(Asker):
     def __init__(self, title, preamble='', filename=''):

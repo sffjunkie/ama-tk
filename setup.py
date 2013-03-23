@@ -14,14 +14,13 @@
 
 from distutils.core import setup
 
-setup(name='asker',
+setup(name='ama',
     version='0.1',
     description="""Module to ask a set of questions from the user and return a set of answers""",
     author='Simon Kennedy',
     author_email='code@sffjunkie.co.uk',
-    url="http://www.sffjunkie.co.uk/python-asker.html",
+    url="http://www.sffjunkie.co.uk/python-ama.html",
     license='Apache-2.0',
-    py_modules=['asker.simple', 'asker.tk', 'asker.validator', 'asker.console'],
+    py_modules=['ama.terminal', 'ama.tk', 'ama.validator', 'ama.ansi'],
     extras_require={'color': ['colorama']}
 )
-

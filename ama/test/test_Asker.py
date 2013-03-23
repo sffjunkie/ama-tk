@@ -1,4 +1,4 @@
-from asker import Asker, Question
+from ama import Asker, Question
 
 questions = u'{"status": ["the status of the system", "1, 2\\nor 3", "string", 1, ["1","2","3"]]}'
 

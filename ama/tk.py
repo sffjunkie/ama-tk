@@ -30,8 +30,8 @@ try:
 except ImportError:
     import ttk
 
-from asker import Asker
-from asker.validator import Validators 
+from ama import Asker
+from ama.validator import Validators 
 
 class TkAsker(Asker):
     def __init__(self, title, preamble='', filename=''):

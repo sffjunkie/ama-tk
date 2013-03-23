@@ -18,7 +18,7 @@ p = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, p)
 
 from pprint import pprint
-from asker.tk import TkAsker
+from ama.tk import TkAsker
 
 __version__ = '1.1.3'
 
