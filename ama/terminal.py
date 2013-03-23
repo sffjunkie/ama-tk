@@ -26,7 +26,7 @@ from collections import OrderedDict
 
 from ama import Asker
 from ama.validator import validate_bool
-from ama.ansi import bright_green, cyan, bright_red
+from ama.color import bright_green, cyan, bright_red
 
 class TerminalAsker(Asker):
     def __init__(self, title, preamble='', filename=''):
