@@ -156,7 +156,8 @@ class TkQuestion(object):
             
             self.value = Validators['yesno'](self._default)
             
-        elif self._type == 'int' or self._type == 'float' or isinstance(self._valid, (int, float)):
+        elif self._type == 'int' or self._type == 'float' or \
+                isinstance(self._valid, (int, float)):
             if self._type == 'int':
                 self._value = tk.IntVar()
                 self.value = Validators['int'](self._default)
@@ -230,12 +231,18 @@ class TkQuestion(object):
 
     def _tk_validate(self, P, V):
         if V == 'focusout':
+            if P.strip() == '':
+                self.valid = True
+                self._edited = False
+                return 1
+
             try:
                 if self._type == 'int':
                     _value = int(P)
                 elif self._type == 'float':
                     _value = float(P)
                 self.valid = True
+
                 return 1
             except:
                 self.valid = False
