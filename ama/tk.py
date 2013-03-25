@@ -127,7 +127,8 @@ class TkQuestion(object):
         self._value = None
         self._asker = asker
         self._row = row
-        self._edited = False
+        self._is_edited = False
+        self._is_valid = True
 
         self.label = ttk.Label(asker.content, text=self._label)
         self.label.grid(column=0, row=self._row*2, sticky=(tk.N, tk.S, tk.W),
@@ -200,7 +201,7 @@ class TkQuestion(object):
         asker.content.rowconfigure((self._row*2) + 1, weight=1)
         
     def update(self, answers):
-        if not self._edited:
+        if not self._is_edited:
             self._value.set(self._default.format(**answers))
         
     def value():
@@ -219,8 +220,12 @@ class TkQuestion(object):
     value = property(**value())
 
     def valid():
+        def fget(self):
+            return self._is_valid
+        
         def fset(self, value):
-            if value:
+            self._is_valid = bool(value)
+            if self._is_valid:
                 self.err_label['text'] = ' '
             else:
                 self.err_label['text'] = '!'
@@ -233,7 +238,7 @@ class TkQuestion(object):
         if V == 'focusout':
             if P.strip() == '':
                 self.valid = True
-                self._edited = False
+                self._is_edited = False
                 return 1
 
             try:
@@ -248,8 +253,8 @@ class TkQuestion(object):
                 self.valid = False
                 return 0
         elif V == 'key':
-            if not self._edited:
-                self._edited = True
+            if not self._is_edited:
+                self._is_edited = True
             return 1
         else:
             return 1
