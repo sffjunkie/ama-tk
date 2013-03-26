@@ -19,12 +19,11 @@ from collections import namedtuple, OrderedDict
 from ama.validator import Validators
 
 _Question = namedtuple('question',
-                       'key label type default help_text validator depends_on')
+                       'key label type default help_text validator')
 
 def Question(key, label, answer_type='str', default=None, help_text='',
-             validator=None, depends_on=[]):
-    return _Question(key, label, answer_type, default, help_text, validator,
-                     depends_on)
+             validator=None):
+    return _Question(key, label, answer_type, default, help_text, validator)
 
 
 class Asker(object):
@@ -82,8 +81,7 @@ class Asker(object):
                         self.depends_on_us[dep].append(key)
                 
                 q = Question(key, question[0], question[1],
-                             default, question[3], question[4],
-                             depends_on)
+                             default, question[3], question[4])
                 self.add_question(key, q)
 
         result = self.go(initial_answers)
