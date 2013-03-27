@@ -124,6 +124,7 @@ class TkQuestion(object):
         self._valid = question.type
         self._default = question.default
         self._validator = question.validator
+        
         self._value = None
         self._asker = asker
         self._row = row
@@ -131,7 +132,7 @@ class TkQuestion(object):
         self._is_valid = True
 
         self.label = ttk.Label(asker.content, text=self._label)
-        self.label.grid(column=0, row=self._row*2, sticky=(tk.N, tk.S, tk.W),
+        self.label.grid(column=0, row=self._row, sticky=(tk.N, tk.S, tk.W),
                         padx=(0,5))
         
         self._validate = (asker.root.register(self._tk_validate),
@@ -190,15 +191,14 @@ class TkQuestion(object):
             raise ValueError(('Unable to create entry widget '
                               'valid=%s') % self._valid)
             
-        self.entry.grid(column=1, row=self._row*2, sticky=tk.EW)
+        self.entry.grid(column=1, row=self._row, sticky=tk.EW)
         
         error_font = font.Font(family='TkFixedFont', size=10, weight='bold')
         self.err_label = ttk.Label(asker.content, font=error_font, text=' ',
                                    width=1, foreground='red')
-        self.err_label.grid(column=2, row=self._row*2, padx=(3,0))
+        self.err_label.grid(column=2, row=self._row, padx=(3,0))
         
         asker.content.rowconfigure(self._row, weight=0)
-        asker.content.rowconfigure((self._row*2) + 1, weight=1)
         
     def update(self, answers):
         if not self._is_edited:
