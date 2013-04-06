@@ -44,6 +44,12 @@ class TkAsker(Asker):
 
         self.root = tk.Tk()
         self.root.title(self._title)
+        
+        self._edited_entry = ttk.Style()
+        self._edited_entry.configure('edited.TEntry', foreground='black')
+        
+        self._unedited_entry = ttk.Style()
+        self._unedited_entry.configure('unedited.TEntry', foreground='blue')
 
         header_font = font.Font(family='TkDefaultFont')
         header_font.configure(weight='bold')
@@ -135,6 +141,7 @@ class TkQuestion(object):
         self._var = None
         self._asker = asker
         self._row = row
+        
         self._is_edited = False
         self._is_valid = True
 
@@ -214,6 +221,9 @@ class TkQuestion(object):
             self.info_label['text'] = '?'
             self.tooltip = ToolTip(self.info_label, msg=self._help_text, delay=0.5)
         
+        self.edited = self._is_edited
+        self.valid = self._is_valid
+        
         asker.content.rowconfigure(self._row, weight=0)
         
     def update(self, answers):
@@ -252,6 +262,23 @@ class TkQuestion(object):
         return locals()
 
     valid = property(**valid())
+        
+    def edited():
+        def fget(self):
+            return self._is_edited
+        
+        def fset(self, value):
+            self._is_edited = bool(value)
+            
+            if isinstance(self.entry, ttk.Entry):
+                if self._is_edited:
+                    self.entry['style'] = 'edited.TEntry'
+                else:
+                    self.entry['style'] = 'unedited.TEntry'
+                
+        return locals()
+    
+    edited = property(**edited())
     
     def validated_answer(self):
         return self._validate(self.value)
@@ -260,7 +287,7 @@ class TkQuestion(object):
         if V == 'focusout':
             if P.strip() == '':
                 self.valid = True
-                self._is_edited = False
+                self.edited = False
 
             try:
                 if self._type == 'int':
@@ -272,8 +299,8 @@ class TkQuestion(object):
                 self.valid = False
                 return 0
         elif V == 'key':
-            if not self._is_edited:
-                self._is_edited = True
+            if not self.edited:
+                self.edited = True
 
         return 1
 
