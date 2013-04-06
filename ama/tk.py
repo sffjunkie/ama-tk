@@ -141,7 +141,9 @@ class TkQuestion(object):
 
         if self._type == 'str':
             self._value = tk.StringVar()
-            self.entry = ttk.Entry(asker.content, textvariable=self._value)
+            self.entry = ttk.Entry(asker.content, textvariable=self._value,
+                                   validate='all',
+                                   validatecommand=self._validate)
 
             self.value = self._default
             
