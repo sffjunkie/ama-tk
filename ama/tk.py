@@ -100,6 +100,14 @@ class TkAsker(Asker):
         self.root.mainloop()
         
         return self._result
+
+    def _is_valid(self):
+        valid = True
+        for _key, question in self._ask.items():
+            if not question.valid:
+                valid = False
+        
+        return valid
     
     def _ok(self, event=None):
         self._result['result'] = 'ok'
