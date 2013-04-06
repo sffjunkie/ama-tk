@@ -246,7 +246,6 @@ class TkQuestion(object):
             if P.strip() == '':
                 self.valid = True
                 self._is_edited = False
-                return 1
 
             try:
                 if self._type == 'int':
@@ -254,15 +253,12 @@ class TkQuestion(object):
                 elif self._type == 'float':
                     _value = float(P)
                 self.valid = True
-
-                return 1
             except:
                 self.valid = False
                 return 0
         elif V == 'key':
             if not self._is_edited:
                 self._is_edited = True
-            return 1
-        else:
-            return 1
+
+        return 1
 
