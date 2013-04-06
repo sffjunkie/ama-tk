@@ -114,7 +114,7 @@ class TkAsker(Asker):
         
         answers = {}
         for key, tkq in self._ask.items():
-            answer = self.validate(tkq._value.get(), tkq._type, None)
+            answer = self.validate(tkq._var.get(), tkq._type, None)
             answers[key] = answer
             
         self._result['answers'] = answers
@@ -134,7 +134,7 @@ class TkQuestion(object):
         self._default = question.default
         self._validator = question.validator
         
-        self._value = None
+        self._var = None
         self._asker = asker
         self._row = row
         self._is_edited = False
@@ -148,8 +148,8 @@ class TkQuestion(object):
                                   '%P', '%V')
 
         if self._type == 'str':
-            self._value = tk.StringVar()
-            self.entry = ttk.Entry(asker.content, textvariable=self._value,
+            self._var = tk.StringVar()
+            self.entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate)
 
@@ -158,10 +158,10 @@ class TkQuestion(object):
         elif self._type == 'int' or self._type == 'float' or \
                 isinstance(self._valid, (int, float)):
             if self._type == 'int':
-                self._value = tk.IntVar()
+                self._var = tk.IntVar()
                 self.value = Validators['int'](self._default)
             elif self._type == 'float':
-                self._value = tk.DoubleVar()
+                self._var = tk.DoubleVar()
                 self.value = Validators['float'](self._default)
                 
             self.entry = ttk.Entry(asker.content,
@@ -171,29 +171,29 @@ class TkQuestion(object):
             
         elif self._type == 'bool' or self._type == 'yesno' or \
             isinstance(self._valid, bool):
-            self._value = tk.BooleanVar()
+            self._var = tk.BooleanVar()
             self.entry = ttk.Frame(asker.content)
             y = ttk.Radiobutton(self.entry, text='Yes',
-                                variable=self._value, value=True)
+                                variable=self._var, value=True)
             y.grid(column=0, row=0, padx=(0,5))
             
             n = ttk.Radiobutton(self.entry, text='No',
-                                variable=self._value, value=False)
+                                variable=self._var, value=False)
             n.grid(column=1, row=0)
             
             self.value = Validators['yesno'](self._default)
 
         elif isinstance(self._valid, list):
-            self._value = tk.StringVar()
+            self._var = tk.StringVar()
             if len(self._valid) <= 3:
                 self.entry = ttk.Frame(asker.content)
                 for idx, e in enumerate(self._valid):
                     rb = ttk.Radiobutton(self.entry, text=str(e),
-                                         variable=self._value, value=str(e))
+                                         variable=self._var, value=str(e))
                     rb.grid(column=idx, row=0, padx=(0,5))
             else:
                 self.entry = ttk.Combobox(asker.content,
-                                          textvariable=self._value)
+                                          textvariable=self._var)
                 self.entry['values'] = tuple(self._valid)
                 
             self.value = str(self._valid[0])
@@ -216,16 +216,16 @@ class TkQuestion(object):
         
     def update(self, answers):
         if not self._is_edited:
-            self._value.set(self._default.format(**answers))
+            self._var.set(self._default.format(**answers))
         
     def value():
         def fget(self):
-            return self._value.get()
+            return self._var.get()
         
         def fset(self, value):
             try:
                 value = self._asker.validate(value, self._type, self._validator)
-                self._value.set(value)
+                self._var.set(value)
             except:
                 raise ValueError
                 
