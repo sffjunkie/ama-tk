@@ -110,6 +110,7 @@ class TkAsker(Asker):
         return valid
     
     def _ok(self, event=None):
+        self._result['valid'] = self._is_valid()
         self._result['result'] = 'ok'
         
         answers = {}
@@ -122,6 +123,7 @@ class TkAsker(Asker):
         self.root.destroy()
     
     def _cancel(self, event=None):
+        self._result['valid'] = False
         self._result['result'] = 'cancel'
         self.root.destroy()
 
