@@ -131,7 +131,7 @@ class TkQuestion(object):
         self._label = question.label
         self._type = question.type
         self._default = question.default
-        self._validator = question.validator
+        self._validate = asker.validator(question.type, question.validator)
         
         self._var = None
         self._asker = asker
@@ -143,14 +143,14 @@ class TkQuestion(object):
         self.label.grid(column=0, row=self._row, sticky=(tk.N, tk.S, tk.W),
                         padx=(0,5))
         
-        self._validate = (asker.root.register(self._tk_validate),
-                          '%P', '%V')
+        self._validate_entry = (asker.root.register(self._tk_validate),
+                                '%P', '%V')
 
         if self._type == 'str':
             self._var = tk.StringVar()
             self.entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
-                                   validatecommand=self._validate)
+                                   validatecommand=self._validate_entry)
 
             self.value = self._default
             
@@ -160,7 +160,7 @@ class TkQuestion(object):
                 
             self.entry = ttk.Entry(asker.content,
                                    validate='all',
-                                   validatecommand=self._validate)
+                                   validatecommand=self._validate_entry)
             self.entry.configure(width=30)
             
         elif self._type == 'float' or isinstance(self._type, float):
@@ -169,7 +169,7 @@ class TkQuestion(object):
                 
             self.entry = ttk.Entry(asker.content,
                                    validate='all',
-                                   validatecommand=self._validate)
+                                   validatecommand=self._validate_entry)
             self.entry.configure(width=30)
             
         elif self._type == 'bool' or self._type == 'yesno' or \
@@ -227,7 +227,7 @@ class TkQuestion(object):
         
         def fset(self, value):
             try:
-                value = self._asker.validate(value, self._type, self._validator)
+                value = self._validate(value)
                 self._var.set(value)
             except:
                 raise ValueError
