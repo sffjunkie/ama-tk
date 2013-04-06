@@ -227,7 +227,7 @@ class TkQuestion(object):
         asker.content.rowconfigure(self._row, weight=0)
         
     def update(self, answers):
-        if not self._is_edited:
+        if not self.edited:
             self._var.set(self._default.format(**answers))
         
     def value():
