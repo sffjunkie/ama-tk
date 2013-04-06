@@ -87,8 +87,6 @@ class TkAsker(Asker):
         
         if sys.platform.startswith('darwin'):
             self.root.createcommand("::tk::mac::Quit", self._cancel)
-        
-        self._result = {}
     
     def add_question(self, key, question):
         tkq = TkQuestion(self, self._row,
@@ -97,8 +95,8 @@ class TkAsker(Asker):
         self._row = self._row + 1
 
     def go(self, initial_answers):
+        self._result = {}
         self.root.mainloop()
-        
         return self._result
 
     def _is_valid(self):
