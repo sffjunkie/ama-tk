@@ -154,14 +154,18 @@ class TkQuestion(object):
 
             self.value = self._default
             
-        elif self._type == 'int' or self._type == 'float' or \
-                isinstance(self._type, (int, float)):
-            if self._type == 'int':
-                self._var = tk.IntVar()
-                self.value = Validators['int'](self._default)
-            elif self._type == 'float':
-                self._var = tk.DoubleVar()
-                self.value = Validators['float'](self._default)
+        elif self._type == 'int' or isinstance(self._type, int):
+            self._var = tk.IntVar()
+            self.value = Validators['int'](self._default)
+                
+            self.entry = ttk.Entry(asker.content,
+                                   validate='all',
+                                   validatecommand=self._validate)
+            self.entry.configure(width=30)
+            
+        elif self._type == 'float' or isinstance(self._type, float):
+            self._var = tk.DoubleVar()
+            self.value = Validators['float'](self._default)
                 
             self.entry = ttk.Entry(asker.content,
                                    validate='all',
