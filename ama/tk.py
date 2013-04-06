@@ -290,10 +290,7 @@ class TkQuestion(object):
                 self.edited = False
 
             try:
-                if self._type == 'int':
-                    _value = int(P)
-                elif self._type == 'float':
-                    _value = float(P)
+                _value = self._validate(P)
                 self.valid = True
             except:
                 self.valid = False
