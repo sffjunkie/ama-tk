@@ -144,7 +144,7 @@ class TkQuestion(object):
                         padx=(0,5))
         
         self._validate = (asker.root.register(self._tk_validate),
-                                  '%P', '%V')
+                          '%P', '%V')
 
         if self._type == 'str':
             self._var = tk.StringVar()
