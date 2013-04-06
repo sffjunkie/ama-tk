@@ -90,19 +90,19 @@ class Asker(object):
     def go(self):
         raise NotImplemented
 
-    def validate(self, value, type_, validator):
-        type_validator = Validators[type_]
+    def validate(self, value, type_validator, custom_validator):
+        tv = Validators[type_validator]
         
-        custom_validator = None
-        if validator is not None:
-            custom_validator = Validators[validator]
+        cv = None
+        if custom_validator is not None:
+            cv = Validators[custom_validator]
         
-        if type_validator is None and custom_validator is not None:
+        if tv is None and cv is None:
             return value
         else:
-            v1 = type_validator(value)
-            if custom_validator is not None:
-                return custom_validator(v1)
+            v1 = tv(value)
+            if cv is not None:
+                return cv(v1)
             else:
                 return v1
     
