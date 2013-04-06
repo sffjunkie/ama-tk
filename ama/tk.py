@@ -145,20 +145,6 @@ class TkQuestion(object):
 
             self.value = self._default
             
-        elif self._type == 'bool' or self._type == 'yesno' or \
-            isinstance(self._valid, bool):
-            self._value = tk.BooleanVar()
-            self.entry = ttk.Frame(asker.content)
-            y = ttk.Radiobutton(self.entry, text='Yes',
-                                variable=self._value, value=True)
-            y.grid(column=0, row=0, padx=(0,5))
-            
-            n = ttk.Radiobutton(self.entry, text='No',
-                                variable=self._value, value=False)
-            n.grid(column=1, row=0)
-            
-            self.value = Validators['yesno'](self._default)
-            
         elif self._type == 'int' or self._type == 'float' or \
                 isinstance(self._valid, (int, float)):
             if self._type == 'int':
@@ -172,6 +158,20 @@ class TkQuestion(object):
                                    validate='all',
                                    validatecommand=self._validate)
             self.entry.configure(width=30)
+            
+        elif self._type == 'bool' or self._type == 'yesno' or \
+            isinstance(self._valid, bool):
+            self._value = tk.BooleanVar()
+            self.entry = ttk.Frame(asker.content)
+            y = ttk.Radiobutton(self.entry, text='Yes',
+                                variable=self._value, value=True)
+            y.grid(column=0, row=0, padx=(0,5))
+            
+            n = ttk.Radiobutton(self.entry, text='No',
+                                variable=self._value, value=False)
+            n.grid(column=1, row=0)
+            
+            self.value = Validators['yesno'](self._default)
 
         elif isinstance(self._valid, list):
             self._value = tk.StringVar()
