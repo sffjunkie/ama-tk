@@ -113,7 +113,7 @@ class TkAsker(Asker):
         
         answers = {}
         for key, tkq in self._ask.items():
-            answer = self.validate(tkq._var.get(), tkq._type, None)
+            answer = tkq.validated_answer()
             answers[key] = answer
             
         self._result['answers'] = answers
@@ -253,6 +253,9 @@ class TkQuestion(object):
         return locals()
 
     valid = property(**valid())
+    
+    def validated_answer(self):
+        return self._validate(self.value)
 
     def _tk_validate(self, P, V):
         if V == 'focusout':
