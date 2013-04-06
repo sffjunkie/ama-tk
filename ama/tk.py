@@ -207,12 +207,12 @@ class TkQuestion(object):
         self.entry.grid(column=1, row=self._row, sticky=tk.EW)
         
         error_font = font.Font(family='TkFixedFont', size=10, weight='bold')
-        self.err_label = ttk.Label(asker.content, font=error_font, width=2, anchor=tk.CENTER)
-        self.err_label.grid(column=2, row=self._row, padx=(3,0))
+        self.info_label = ttk.Label(asker.content, font=error_font, width=2, anchor=tk.CENTER)
+        self.info_label.grid(column=2, row=self._row, padx=(3,0))
         self._help_text = question.help_text
         if self._help_text != '':
-            self.err_label['text'] = '?'
-            self.tooltip = ToolTip(self.err_label, msg=self._help_text, delay=0.5)
+            self.info_label['text'] = '?'
+            self.tooltip = ToolTip(self.info_label, msg=self._help_text, delay=0.5)
         
         asker.content.rowconfigure(self._row, weight=0)
         
@@ -243,11 +243,11 @@ class TkQuestion(object):
             self._is_valid = bool(value)
             if self._is_valid:
                 if self._help_text != '':
-                    self.err_label['text'] = '?'
-                self.err_label['foreground'] = 'black'
+                    self.info_label['text'] = '?'
+                self.info_label['foreground'] = 'black'
             else:
-                self.err_label['text'] = '!'
-                self.err_label['foreground'] = 'red'
+                self.info_label['text'] = '!'
+                self.info_label['foreground'] = 'red'
                 
         return locals()
 
