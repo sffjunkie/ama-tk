@@ -288,13 +288,13 @@ class TkQuestion(object):
             if P.strip() == '':
                 self.valid = True
                 self.edited = False
-
-            try:
-                _value = self._validate(P)
-                self.valid = True
-            except:
-                self.valid = False
-                return 0
+            else:
+                try:
+                    _value = self._validate(P)
+                    self.valid = True
+                except:
+                    self.valid = False
+                    return 0
         elif V == 'key':
             if not self.edited:
                 self.edited = True
