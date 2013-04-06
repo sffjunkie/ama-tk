@@ -113,8 +113,7 @@ class TkAsker(Asker):
         
         answers = {}
         for key, tkq in self._ask.items():
-            answer = tkq.validated_answer()
-            answers[key] = answer
+            answers[key] = tkq.validated_answer()
             
         self._result['answers'] = answers
         
