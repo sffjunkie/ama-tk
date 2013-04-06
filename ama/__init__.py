@@ -88,9 +88,15 @@ class Asker(object):
         return result
 
     def go(self):
+        """Overridden by subclasses to ask the questions"""
+        
         raise NotImplemented
 
     def validator(self, type_validator, custom_validator):
+        """Create a function which validates by type first and then by a custom
+        validator
+        """
+        
         def validate(value):
             tv = Validators[type_validator]
             
@@ -110,7 +116,7 @@ class Asker(object):
         return validate
     
     def _find_dependencies(self, default):
-        """Returns a list of fields the default uses""" 
+        """Returns a list of question keys the default value uses""" 
         
         f = Formatter()
         dependencies = []
