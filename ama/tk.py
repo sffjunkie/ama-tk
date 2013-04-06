@@ -99,6 +99,15 @@ class TkAsker(Asker):
                          question)
         self._ask[key] = tkq
         self._row = self._row + 1
+        
+    def answer_edited(self, answer):
+        current_answers = {}
+        for key, question in self._asker._ask.items():
+            current_answers[key] = question.value
+            
+        for key, question in self._ask.items():
+            if key != answer:
+                question.update(current_answers)
 
     def go(self, initial_answers):
         self._result = {}
@@ -133,6 +142,7 @@ class TkAsker(Asker):
 
 class TkQuestion(object):
     def __init__(self, asker, row, question):
+        self._key = question.key
         self._label = question.label
         self._type = question.type
         self._default = question.default
@@ -226,9 +236,9 @@ class TkQuestion(object):
         
         asker.content.rowconfigure(self._row, weight=0)
         
-    def update(self, answers):
+    def update(self, current_answers):
         if not self.edited:
-            self._var.set(self._default.format(**answers))
+            self._var.set(self._default.format(**current_answers))
         
     def value():
         def fget(self):
@@ -298,6 +308,8 @@ class TkQuestion(object):
         elif V == 'key':
             if not self.edited:
                 self.edited = True
+                
+            self._asker.answer_edited(self._key)
 
         return 1
 
