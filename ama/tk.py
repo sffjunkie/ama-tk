@@ -130,7 +130,6 @@ class TkQuestion(object):
     def __init__(self, asker, row, question):
         self._label = question.label
         self._type = question.type
-        self._valid = question.type
         self._default = question.default
         self._validator = question.validator
         
@@ -156,7 +155,7 @@ class TkQuestion(object):
             self.value = self._default
             
         elif self._type == 'int' or self._type == 'float' or \
-                isinstance(self._valid, (int, float)):
+                isinstance(self._type, (int, float)):
             if self._type == 'int':
                 self._var = tk.IntVar()
                 self.value = Validators['int'](self._default)
@@ -170,7 +169,7 @@ class TkQuestion(object):
             self.entry.configure(width=30)
             
         elif self._type == 'bool' or self._type == 'yesno' or \
-            isinstance(self._valid, bool):
+            isinstance(self._type, bool):
             self._var = tk.BooleanVar()
             self.entry = ttk.Frame(asker.content)
             y = ttk.Radiobutton(self.entry, text='Yes',
@@ -183,24 +182,24 @@ class TkQuestion(object):
             
             self.value = Validators['yesno'](self._default)
 
-        elif isinstance(self._valid, list):
+        elif isinstance(self._type, list):
             self._var = tk.StringVar()
-            if len(self._valid) <= 3:
+            if len(self._type) <= 3:
                 self.entry = ttk.Frame(asker.content)
-                for idx, e in enumerate(self._valid):
+                for idx, e in enumerate(self._type):
                     rb = ttk.Radiobutton(self.entry, text=str(e),
                                          variable=self._var, value=str(e))
                     rb.grid(column=idx, row=0, padx=(0,5))
             else:
                 self.entry = ttk.Combobox(asker.content,
                                           textvariable=self._var)
-                self.entry['values'] = tuple(self._valid)
+                self.entry['values'] = tuple(self._type)
                 
-            self.value = str(self._valid[0])
+            self.value = str(self._type[0])
             
         else:
             raise ValueError(('Unable to create entry widget '
-                              'valid=%s') % self._valid)
+                              'valid=%s') % self._type)
             
         self.entry.grid(column=1, row=self._row, sticky=tk.EW)
         
