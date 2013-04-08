@@ -93,9 +93,9 @@ class Asker(object):
         
         raise NotImplemented
 
-    def validator(self, type_validator, custom_validator):
-        """Create a function which validates by type first and then by a custom
-        validator
+    def validator(self, type_validator, custom_validator=None):
+        """Returns a function which validates by type first and then by a custom
+        validator if one is provided
         """
         
         def validate(value):
