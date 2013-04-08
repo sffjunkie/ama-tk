@@ -88,7 +88,8 @@ class Asker(object):
         return result
 
     def go(self):
-        """Overridden by subclasses to ask the questions"""
+        """Overridden by subclasses to ask the questions. Subclasses should
+        return a dictionary of the answers"""
         
         raise NotImplemented
 
