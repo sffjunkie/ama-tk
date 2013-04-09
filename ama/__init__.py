@@ -121,7 +121,7 @@ class Asker(object):
         
         f = Formatter()
         dependencies = []
-        for _text, field, _format_spec, _conversion in f.parse(default):
+        for _text, field, _format_spec, _conversion in f.parse(str(default)):
             if field is not None:
                 dependencies.append(field)
         
