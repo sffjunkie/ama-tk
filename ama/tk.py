@@ -100,7 +100,6 @@ class TkAsker(Asker):
         self._ask[key] = tkq
         self._row = self._row + 1
     
-    #TODO: Answer Updates  
     def update_answers(self, update_info=None):
         current_answers = {}
         for key, tkq in self._ask.items():
@@ -321,7 +320,6 @@ class TkQuestion(object):
             if not self.edited:
                 self.edited = True
             
-            #TODO: Answer Updates
             self._asker.update_answers((self._key, P))
 
         return 1
