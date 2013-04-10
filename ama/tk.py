@@ -99,18 +99,23 @@ class TkAsker(Asker):
                          question)
         self._ask[key] = tkq
         self._row = self._row + 1
-        
-    def answer_edited(self, answer):
+    
+    #TODO: Answer Updates  
+    def update_answers(self, update_info=None):
         current_answers = {}
-        for key, question in self._asker._ask.items():
-            current_answers[key] = question.value
+        for key, tkq in self._ask.items():
+            current_answers[key] = tkq.value
+        
+        if update_info is not None:
+            current_answers[update_info[0]] = update_info[1]
             
-        for key, question in self._ask.items():
-            if key != answer:
-                question.update(current_answers)
+        for key, tkq in self._ask.items():
+            if update_info is None or key != update_info[0]:
+                tkq.update(current_answers)
 
     def go(self, initial_answers):
         self._result = {}
+        self.update_answers()
         self.root.mainloop()
         return self._result
 
@@ -162,7 +167,7 @@ class TkQuestion(object):
         self._validate_entry = (asker.root.register(self._tk_validate),
                                 '%P', '%V')
 
-        if self._type == 'str':
+        if self._type == 'str' or self._type == 'nonempty':
             self._var = tk.StringVar()
             self.entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
@@ -219,7 +224,7 @@ class TkQuestion(object):
             
         else:
             raise ValueError(('Unable to create entry widget '
-                              'valid=%s') % self._type)
+                              'for type %s') % self._type)
             
         self.entry.grid(column=1, row=self._row, sticky=tk.EW)
         
@@ -238,11 +243,18 @@ class TkQuestion(object):
         
     def update(self, current_answers):
         if not self.edited:
-            self._var.set(self._default.format(**current_answers))
+            try:
+                self._var.set(str(self._default).format(**current_answers))
+            except:
+                pass
         
     def value():
         def fget(self):
-            return self._var.get()
+            try:
+                return self._var.get()
+            except:
+                text = self.entry.get()
+                return self._validate(text)
         
         def fset(self, value):
             try:
@@ -308,8 +320,9 @@ class TkQuestion(object):
         elif V == 'key':
             if not self.edited:
                 self.edited = True
-                
-            self._asker.answer_edited(self._key)
+            
+            #TODO: Answer Updates
+            self._asker.update_answers((self._key, P))
 
         return 1
 
