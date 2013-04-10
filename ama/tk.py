@@ -178,7 +178,7 @@ class TkQuestion(object):
             self._var = tk.IntVar()
             self.value = Validators['int'](self._default)
                 
-            self.entry = ttk.Entry(asker.content,
+            self.entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
             self.entry.configure(width=30)
@@ -187,7 +187,7 @@ class TkQuestion(object):
             self._var = tk.DoubleVar()
             self.value = Validators['float'](self._default)
                 
-            self.entry = ttk.Entry(asker.content,
+            self.entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
             self.entry.configure(width=30)
