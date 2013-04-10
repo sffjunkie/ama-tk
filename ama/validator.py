@@ -57,12 +57,12 @@ def validate_int(value):
     
 def validate_float(value):
     if value == '':
-        return 0
+        return 0.0
     
     try:
-        return int(value)
+        return float(value)
     except:
-        raise ValidationError('Please enter an integer value')
+        raise ValidationError('Please enter a floating point value')
 
 def validate_path(value):
     if path.exists(value) and not path.isdir(value):
