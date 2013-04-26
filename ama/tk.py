@@ -109,7 +109,7 @@ class TkAsker(Asker):
             current_answers[update_info[0]] = update_info[1]
             
         for key, tkq in self._ask.items():
-            if update_info is None or key != update_info[0]:
+            if (update_info is None or key != update_info[0]) and not tkq.edited:
                 tkq.update(current_answers)
 
     def go(self, initial_answers):
