@@ -49,7 +49,7 @@ class TkAsker(Asker):
         self._edited_entry.configure('edited.TEntry', foreground='black')
         
         self._unedited_entry = ttk.Style()
-        self._unedited_entry.configure('unedited.TEntry', foreground='#888')
+        self._unedited_entry.configure('unedited.TEntry', foreground='#666')
 
         header_font = font.Font(family='TkDefaultFont')
         header_font.configure(weight='bold')
