@@ -241,11 +241,12 @@ class TkQuestion(object):
         asker.content.rowconfigure(self._row, weight=0)
         
     def update(self, current_answers):
-        if not self.edited:
-            try:
-                self._var.set(str(self._default).format(**current_answers))
-            except:
-                pass
+        try:
+            updated_answer = str(self._default).format(**current_answers)
+            value = self._validate(updated_answer)
+            self._var.set(value)
+        except:
+            pass
         
     def value():
         def fget(self):
