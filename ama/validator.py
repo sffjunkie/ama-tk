@@ -12,6 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Provides a dictionary of validation functions to test values. Values
+are checked that they...
+
+:str: can be converted to a string 
+:yesno: match one of 'yes', 'y', 'no', 'n' with any case plus True and False
+:bool: can be converted to a boolean value
+:int: can be converted to an integer value
+:float: can be converted to a floating point value
+:re(regexp): matches the regular expression `regexp`
+:path: is a valid path name that exists
+:path(new): is a valid path name that does not exist
+:path(empty): is a valid path name that is empty
+:path(nonempty): is a valid path name that is not empty
+:path(filespec): is a valid path name that contains files that conform to `filespec`
+
+`filespec` is of the form [+-]pattern where the leading '+' indicates that
+the path must include a file that matches the pattern and '-' indicates that
+it must not include files that match pattern.
+"""
+
 import re
 import csv
 import glob
@@ -53,7 +73,7 @@ def validate_bool(value):
     elif str(value).lower() in false_values:
         return False
     else:
-        raise ValueError('Please enter a valid boolean value can')
+        raise ValueError('Please enter a valid boolean value')
     
 def validate_int(value):
     if value == '':
