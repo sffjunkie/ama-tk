@@ -22,7 +22,6 @@ are checked that they...
 :float: can be converted to a floating point value
 :re(regexp): matches the regular expression `regexp`
 :path: is a valid path name that exists
-:path(new): is a valid path name that does not exist
 :path(empty): is a valid path name that is empty
 :path(nonempty): is a valid path name that is not empty
 :path(filespec): is a valid path name that contains files that conform to `filespec`
@@ -111,12 +110,6 @@ def validate_path(value):
         raise ValueError('Please enter a valid path name.')
     return value
 
-def validate_path_new(value):
-    if path.exists(value):
-        raise ValueError(('Please enter a valid path name '
-                          'for which the path does not exist.'))
-    return value
-
 def validate_path_empty(value):
     is_dir = path.exists(value) and path.isdir(value)
     if not is_dir:
@@ -200,7 +193,6 @@ class _Registry():
             'float': validate_float,
             'bool': validate_bool,
             'path': validate_path,
-            'path(new)': validate_path_new,
             'path(empty)': validate_path_empty,
             'path(nonempty)': validate_path_nonempty,
             'nonempty': validate_nonempty,
