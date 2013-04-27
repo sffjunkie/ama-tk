@@ -4,6 +4,55 @@
      "str",
      ".",
      "Root path for the documentation",
+     "path"
+    ],
+"count":
+	["Number of items",
+     "int",
+     1,
+     "How many items",
      null
     ],
+"payment":
+	["Payment per month",
+     "float",
+     1.1,
+     "How many items",
+     null
+    ],
+"show_all":
+	["Show everything",
+     "bool",
+     true,
+     "Do you want to show every single item in the whole world",
+     null
+    ],
+"show_yesno":
+	["Really everything",
+     "yesno",
+     false,
+     "Do you really want to show every single item in the whole world",
+     null
+    ],
+"something":
+	["A non empty field",
+     "nonempty",
+     "a",
+     "You really have to enter something",
+     null
+    ],
+"path2":
+    ["Another path",
+     "str",
+     "",
+     "A second path used by the next question to join 2 together",
+     null
+    ],
+"join_path":
+    ["Compound path",
+     "str",
+     "{path}/{path2}",
+     "Joining of path & path2",
+     null
+    ]
 }
