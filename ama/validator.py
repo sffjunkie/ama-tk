@@ -12,15 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from os import path
+import re
+import csv
+import glob
+from io import StringIO
+from os import path, listdir
 
 try:
     from pkg_resources import load_entry_point
 except:
     load_entry_point = lambda x: None
 
-class ValidationError(Exception):
-    pass
+__all__ = ['Validators']
+
+def validate_str(value):
+    return str(value)
 
 def validate_yesno(value):
     if str(value).lower() in ['yes', 'y']:
@@ -32,19 +38,22 @@ def validate_yesno(value):
     elif value == False:
         return False
     else:
-        raise ValidationError('Please enter one of "y", "Y", "n" or "N"')
+        raise ValueError('Please enter one of "y", "Y", "n" or "N"')
 
 def validate_bool(value):
+    true_values = ['true', '1', 'yes', 'y']
+    false_values = ['false', '0', 'no', 'n']
+    
     if isinstance(value, bool):
         return value
     elif isinstance(value, int):
         return bool(value)
-    elif str(value).lower() in ['true', '1', 'yes', 'y']:
+    elif str(value).lower() in true_values:
         return True
-    elif str(value).lower() in ['false', '0', 'no', 'n']:
+    elif str(value).lower() in false_values:
         return False
     else:
-        raise ValidationError
+        raise ValueError('Please enter a valid boolean value can')
     
 def validate_int(value):
     if value == '':
@@ -53,7 +62,7 @@ def validate_int(value):
     try:
         return int(value)
     except:
-        raise ValidationError('Please enter an integer value')
+        raise ValueError('Please enter an integer value')
     
 def validate_float(value):
     if value == '':
@@ -62,20 +71,108 @@ def validate_float(value):
     try:
         return float(value)
     except:
-        raise ValidationError('Please enter a floating point value')
+        raise ValueError('Please enter a floating point value')
+
+def validate_regex(regex):
+    def validate(value):
+        r = re.compile(regex)
+        m = r.match(value)
+        if m is not None:
+            return value
+        else:
+            raise ValueError(('Please enter a string which matches'
+                                   'the regular expression %s' % regex))
+    
+    return validate
 
 def validate_path(value):
-    if path.exists(value) and not path.isdir(value):
-        raise ValidationError("Please enter a valid path name.")
+    is_dir = path.exists(value) and path.isdir(value)
+    if not is_dir:
+        raise ValueError('Please enter a valid path name.')
     return value
+
+def validate_path_new(value):
+    if path.exists(value):
+        raise ValueError(('Please enter a valid path name '
+                          'for which the path does not exist.'))
+    return value
+
+def validate_path_empty(value):
+    is_dir = path.exists(value) and path.isdir(value)
+    if not is_dir:
+        raise ValueError(('Please enter a valid path name.'))
+    
+    if len(listdir(value)) != 0:
+        raise ValueError(('Please enter a valid path name '
+                               'for which the path is empty.'))
+    return value
+
+def validate_path_nonempty(value):
+    is_dir = path.exists(value) and path.isdir(value)
+    if not is_dir:
+        raise ValueError(('Please enter a valid path name.'))
+    
+    if len(listdir(value)) == 0:
+        raise ValueError(('Please enter a valid path name '
+                          'for which the path is not empty.'))
+    return value
+
+def path_includes_file(path, filespec):
+    fname = path.join(path, filespec)
+    return path.exists(fname)
+
+def path_does_not_include_file(path, filespec):
+    fname = path.join(path, filespec)
+    return not path.exists(fname)
+
+def validate_path_with_spec(pathspec):
+    reader = csv.reader(StringIO(unicode(pathspec)))
+    included = []
+    not_included = []
+    for row in reader:
+        for elem in row:
+            if elem.startswith('+'):
+                included.append(elem[1:].strip('"'))
+            elif elem.startswith('-'):
+                not_included.append(elem[1:].strip('"'))
+
+    def validate(value):
+        not_found = []
+        for spec in included:
+            if len(glob.glob(path.join(value, spec))) == 0:
+                not_found.append(spec)
+        
+        found = []
+        for spec in not_included:
+            if len(glob.glob(path.join(value, spec))) != 0:
+                found.append(spec)
+        
+        found_count = len(found) 
+        not_found_count = len(not_found) 
+        if found_count != 0 or not_found_count != 0:
+            msg_elem = ['Directory %s' % value]
+            if not_found_count > 0:
+                msg_elem.append('should contain files matching %s' % ','.join(included))
+                
+            if found_count > 0:
+                if not_found_count > 0:
+                    msg_elem.append('and')
+
+                msg_elem.append('should not contain files matching %s' % ','.join(not_included))
+                
+            msg = ' '.join(msg_elem)
+            raise ValueError(msg)
+            
+        return value
+    
+    return validate
 
 def validate_nonempty(value):
     if value is None or str(value) == '':
-        raise ValidationError("Please enter some text.")
+        raise ValueError("Please enter some text.")
     return value
-    
 
-class ValidatorRegistry():
+class _Registry():
     def __init__(self):
         self._validators = {
             'str': lambda value: str(value),
@@ -83,9 +180,14 @@ class ValidatorRegistry():
             'float': validate_float,
             'bool': validate_bool,
             'path': validate_path,
+            'path(new)': validate_path_new,
+            'path(empty)': validate_path_empty,
+            'path(nonempty)': validate_path_nonempty,
             'nonempty': validate_nonempty,
             'yesno': validate_yesno,
         }
+        
+        self._entry_point_re = re.compile('\w+(\.\w)?\:\w+(\.\w)?')
 
     def __getitem__(self, key):
         if key is None:
@@ -93,11 +195,20 @@ class ValidatorRegistry():
         
         if key in self._validators:
             return self._validators[key]
-        elif key.find(':') != -1:
+        
+        if key.startswith('re(') and key.endswith(')'):
+            return validate_regex(key[3:-1])
+        
+        if key.startswith('path(') and key.endswith(')'):
+            filespec = key[5:-1]
+            return validate_path_with_spec(filespec)
+        
+        ep_match = self._entry_point_re.match(key)
+        if ep_match is not None:
             func = load_entry_point(key)
             self._validators[key] = func
             return func
-        else:
-            return None
+        
+        return None
 
-Validators = ValidatorRegistry()
+Validators = _Registry()
