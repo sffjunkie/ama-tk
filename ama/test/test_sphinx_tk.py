@@ -24,7 +24,7 @@ __version__ = '1.1.3'
 
 def test_Tk():
     title = 'Welcome to the Sphinx %s quickstart utility.' % __version__
-    preamble = 'Please enter values for the following settings.'
+    preamble = 'Please enter values for the following settings (just press Enter to accept a default value, if one is given in brackets).'
     answers = {u'batchfile': 'n'}
     asker = TkAsker(title, preamble, 'sphinx.json')    
     new_answers = asker.ask(initial_answers=answers, all_questions=True)
