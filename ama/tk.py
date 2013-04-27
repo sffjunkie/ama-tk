@@ -176,8 +176,7 @@ class TkQuestion(object):
             
         elif self._type == 'int' or isinstance(self._type, int):
             self._var = tk.IntVar()
-            self.value = Validators['int'](self._default)
-                
+            self.value = self._validate(self._default)
             self.entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
@@ -213,6 +212,7 @@ class TkQuestion(object):
 
         elif isinstance(self._type, list):
             self._var = tk.StringVar()
+            self.value = self._validate(self._type[0])
             if len(self._type) <= 3:
                 self.entry = ttk.Frame(asker.content)
                 for idx, e in enumerate(self._type):
@@ -223,8 +223,6 @@ class TkQuestion(object):
                 self.entry = ttk.Combobox(asker.content,
                                           textvariable=self._var)
                 self.entry['values'] = tuple(self._type)
-                
-            self.value = str(self._type[0])
             
         else:
             raise ValueError(('Unable to create entry widget '
@@ -302,7 +300,7 @@ class TkQuestion(object):
                     self.entry['style'] = 'edited.TEntry'
                 else:
                     self.entry['style'] = 'unedited.TEntry'
-                
+                    
         return locals()
     
     edited = property(**edited())
@@ -329,4 +327,3 @@ class TkQuestion(object):
             self._asker.update_answers((self._key, P))
 
         return 1
-
