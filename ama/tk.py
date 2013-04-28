@@ -37,7 +37,6 @@ except ImportError:
     import tkFileDialog as filedialog
 
 from ama import Asker
-from ama.validator import Validators
 from ama.tk_tooltip import ToolTip
 
 class TkAsker(Asker):
