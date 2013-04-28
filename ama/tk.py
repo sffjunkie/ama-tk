@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import sys
+import os.path
 from collections import OrderedDict
 
 try:
@@ -29,6 +30,11 @@ try:
     from tkinter import ttk
 except ImportError:
     import ttk
+    
+try:
+    from tkinter import filedialog
+except ImportError:
+    import tkFileDialog as filedialog
 
 from ama import Asker
 from ama.validator import Validators
@@ -99,8 +105,8 @@ class TkAsker(Asker):
                          question)
         self._ask[key] = tkq
         self._row = self._row + 1
-    
-    def update_answers(self, update_info=None):
+
+    def current_answers(self, update_info=None):
         current_answers = {}
         for key, tkq in self._ask.items():
             current_answers[key] = tkq.value
@@ -108,9 +114,14 @@ class TkAsker(Asker):
         if update_info is not None:
             current_answers[update_info[0]] = update_info[1]
             
+        return current_answers
+    
+    def update_answers(self, update_info=None):
+        answers = self.current_answers(update_info)
+            
         for key, tkq in self._ask.items():
             if (update_info is None or key != update_info[0]) and not tkq.edited:
-                tkq.update(current_answers)
+                tkq.update(answers)
 
     def go(self, initial_answers):
         self._result = {}
@@ -150,8 +161,11 @@ class TkQuestion(object):
         self._label = question.label
         self._type = question.type
         self._default = question.default
+        if question.validator and question.validator.startswith('path('):
+            self._default = os.path.normpath(self._default)
+            
         self._validate = asker.validator(question.type, question.validator)
-        
+
         self._var = None
         self._asker = asker
         self._row = row
@@ -163,38 +177,65 @@ class TkQuestion(object):
         self.label.grid(column=0, row=self._row, sticky=(tk.N, tk.S, tk.W),
                         padx=(0,5))
         
+        error_font = font.Font(family='TkFixedFont', size=10, weight='bold')
+        self.info_label = ttk.Label(asker.content, font=error_font, width=2,
+                                    anchor=tk.CENTER)
+        self.info_label.grid(column=2, row=self._row, padx=(3,0))
+        self._help_text = question.help_text
+        if self._help_text != '':
+            self.info_label['text'] = '?'
+            self.tooltip = ToolTip(self.info_label, msg=self._help_text, delay=0.5)
+        
         self._validate_entry = (asker.root.register(self._tk_validate),
                                 '%P', '%V')
 
-        if self._type == 'str' or self._type == 'nonempty':
+        current_answers = self._asker.current_answers()
+
+        if question.validator and question.validator.startswith('path'):
+            self._var = tk.StringVar()
+            self.entry = ttk.Frame(asker.content)
+            path_entry = ttk.Entry(self.entry, textvariable=self._var,
+                                   validate='all',
+                                   validatecommand=self._validate_entry)
+            path_entry.grid(column=0, row=0, sticky=tk.EW)
+            btn = ttk.Button(self.entry, text='Browse...',
+                             command=self._browse_for_directory)
+            btn.grid(column=1, row=0, sticky=tk.E)
+            self.entry.columnconfigure(0, weight=1)
+            self.entry.columnconfigure(1, weight=0)
+
+            self.update(current_answers)
+            
+        elif self._type == 'str' or self._type == 'nonempty':
             self._var = tk.StringVar()
             self.entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
 
-            self.value = self._default
+            self.update(current_answers)
             
         elif self._type == 'int' or isinstance(self._type, int):
             self._var = tk.IntVar()
-            self.value = self._validate(self._default)
             self.entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
             self.entry.configure(width=30)
+
+            self.update(current_answers)
             
         elif self._type == 'float' or isinstance(self._type, float):
             self._var = tk.DoubleVar()
-            self.value = Validators['float'](self._default)
-                
             self.entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
             self.entry.configure(width=30)
+
+            self.update(current_answers)
             
         elif self._type == 'bool' or self._type == 'yesno' or \
             isinstance(self._type, bool):
             self._var = tk.BooleanVar()
-            self.value = self._validate(self._default)
+            self.value = self._default
             self.entry = ttk.Frame(asker.content)
             
             if self._type == 'yesno':
@@ -212,7 +253,7 @@ class TkQuestion(object):
 
         elif isinstance(self._type, list):
             self._var = tk.StringVar()
-            self.value = self._validate(self._type[0])
+            self.value = self._type[0]
             if len(self._type) <= 3:
                 self.entry = ttk.Frame(asker.content)
                 for idx, e in enumerate(self._type):
@@ -228,28 +269,14 @@ class TkQuestion(object):
             raise ValueError(('Unable to create entry widget '
                               'for type %s') % self._type)
             
-        self.entry.grid(column=1, row=self._row, sticky=tk.EW)
-        
-        error_font = font.Font(family='TkFixedFont', size=10, weight='bold')
-        self.info_label = ttk.Label(asker.content, font=error_font, width=2, anchor=tk.CENTER)
-        self.info_label.grid(column=2, row=self._row, padx=(3,0))
-        self._help_text = question.help_text
-        if self._help_text != '':
-            self.info_label['text'] = '?'
-            self.tooltip = ToolTip(self.info_label, msg=self._help_text, delay=0.5)
+        self.entry.grid(column=1, row=self._row, sticky=tk.EW, padx=0)
         
         self.edited = self._is_edited
-        self.valid = self._is_valid
-        
         asker.content.rowconfigure(self._row, weight=0)
         
     def update(self, current_answers):
-        try:
-            updated_answer = str(self._default).format(**current_answers)
-            value = self._validate(updated_answer)
-            self._var.set(value)
-        except:
-            pass
+        updated_answer = str(self._default).format(**current_answers)
+        self.value = updated_answer
         
     def value():
         def fget(self):
@@ -263,8 +290,9 @@ class TkQuestion(object):
             try:
                 value = self._validate(value)
                 self._var.set(value)
-            except:
-                raise ValueError
+            except ValueError:
+                self._var.set(value)
+                self.valid = True
                 
         return locals()
     
@@ -327,3 +355,25 @@ class TkQuestion(object):
             self._asker.update_answers((self._key, P))
 
         return 1
+    
+    def _browse_for_directory(self, *args):
+        path_entry = self.value
+        path_entry = os.path.abspath(os.path.expanduser(path_entry))
+        
+        new_path = filedialog.askdirectory(initialdir=path_entry)
+        new_path = os.path.normpath(new_path)
+        
+        home_path = unicode(os.path.expanduser('~'))
+        current_path = unicode(os.getcwd())
+        
+        if new_path == home_path:
+            new_path = '~'
+        elif new_path.startswith(home_path):
+            new_path = os.path.join('~', new_path[len(home_path)+1:])
+        elif new_path == current_path:
+            new_path = '.'
+        elif new_path.startswith(current_path):
+            new_path = os.path.join('.', new_path[len(current_path)+1:])
+            
+        self.value = new_path
+        self._asker.update_answers((self._key, new_path))
