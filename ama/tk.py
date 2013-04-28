@@ -161,7 +161,7 @@ class TkQuestion(object):
         self._label = question.label
         self._type = question.type
         self._default = question.default
-        if question.validator and question.validator.startswith('path('):
+        if question.validator and question.validator.startswith('path'):
             self._default = os.path.normpath(self._default)
             
         self._validate = asker.validator(question.type, question.validator)
