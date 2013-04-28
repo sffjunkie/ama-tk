@@ -169,6 +169,7 @@ class TkQuestion(object):
         self._var = None
         self._asker = asker
         self._row = row
+        self._entry = None
         
         self._is_edited = False
         self._is_valid = True
@@ -193,42 +194,44 @@ class TkQuestion(object):
 
         if question.validator and question.validator.startswith('path'):
             self._var = tk.StringVar()
-            self.entry = ttk.Frame(asker.content)
-            path_entry = ttk.Entry(self.entry, textvariable=self._var,
+            frame = ttk.Frame(asker.content)
+            self._entry = ttk.Entry(frame, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
-            path_entry.grid(column=0, row=0, sticky=tk.EW)
-            btn = ttk.Button(self.entry, text='Browse...',
+            self._entry.grid(column=0, row=0, sticky=tk.EW)
+            btn = ttk.Button(frame, text='Browse...',
                              command=self._browse_for_directory)
             btn.grid(column=1, row=0, sticky=tk.E)
-            self.entry.columnconfigure(0, weight=1)
-            self.entry.columnconfigure(1, weight=0)
+            frame.columnconfigure(0, weight=1)
+            frame.columnconfigure(1, weight=0)
 
             self.update(current_answers)
             
         elif self._type == 'str' or self._type == 'nonempty':
             self._var = tk.StringVar()
-            self.entry = ttk.Entry(asker.content, textvariable=self._var,
+            self._entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
-
+            frame = self._entry
             self.update(current_answers)
             
         elif self._type == 'int' or isinstance(self._type, int):
             self._var = tk.IntVar()
-            self.entry = ttk.Entry(asker.content, textvariable=self._var,
+            self._entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
-            self.entry.configure(width=30)
+            self._entry.configure(width=30)
+            frame = self._entry
 
             self.update(current_answers)
             
         elif self._type == 'float' or isinstance(self._type, float):
             self._var = tk.DoubleVar()
-            self.entry = ttk.Entry(asker.content, textvariable=self._var,
+            self._entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
                                    validatecommand=self._validate_entry)
-            self.entry.configure(width=30)
+            self._entry.configure(width=30)
+            frame = self._entry
 
             self.update(current_answers)
             
@@ -236,18 +239,18 @@ class TkQuestion(object):
             isinstance(self._type, bool):
             self._var = tk.BooleanVar()
             self.value = self._default
-            self.entry = ttk.Frame(asker.content)
+            frame = ttk.Frame(asker.content)
             
             if self._type == 'yesno':
                 text = ('Yes', 'No')
             else:
                 text = ('True', 'False')
                 
-            y = ttk.Radiobutton(self.entry, text=text[0],
+            y = ttk.Radiobutton(frame, text=text[0],
                                 variable=self._var, value=True)
             y.grid(column=0, row=0, padx=(0,5))
             
-            n = ttk.Radiobutton(self.entry, text=text[1],
+            n = ttk.Radiobutton(frame, text=text[1],
                                 variable=self._var, value=False)
             n.grid(column=1, row=0)
 
@@ -255,21 +258,22 @@ class TkQuestion(object):
             self._var = tk.StringVar()
             self.value = self._type[0]
             if len(self._type) <= 3:
-                self.entry = ttk.Frame(asker.content)
+                frame = ttk.Frame(asker.content)
                 for idx, e in enumerate(self._type):
-                    rb = ttk.Radiobutton(self.entry, text=str(e),
+                    rb = ttk.Radiobutton(frame, text=str(e),
                                          variable=self._var, value=str(e))
                     rb.grid(column=idx, row=0, padx=(0,5))
             else:
-                self.entry = ttk.Combobox(asker.content,
+                self._entry = ttk.Combobox(asker.content,
                                           textvariable=self._var)
-                self.entry['values'] = tuple(self._type)
+                self._entry['values'] = tuple(self._type)
+                frame = self._entry
             
         else:
-            raise ValueError(('Unable to create entry widget '
+            raise ValueError(('Unable to create _entry widget '
                               'for type %s') % self._type)
             
-        self.entry.grid(column=1, row=self._row, sticky=tk.EW, padx=0)
+        frame.grid(column=1, row=self._row, sticky=tk.EW, padx=0)
         
         self.edited = self._is_edited
         asker.content.rowconfigure(self._row, weight=0)
@@ -283,7 +287,7 @@ class TkQuestion(object):
             try:
                 return self._var.get()
             except:
-                text = self.entry.get()
+                text = self._entry.get()
                 return self._validate(text)
         
         def fset(self, value):
@@ -323,11 +327,11 @@ class TkQuestion(object):
         def fset(self, value):
             self._is_edited = bool(value)
             
-            if isinstance(self.entry, ttk.Entry):
+            if isinstance(self._entry, ttk.Entry):
                 if self._is_edited:
-                    self.entry['style'] = 'edited.TEntry'
+                    self._entry['style'] = 'edited.TEntry'
                 else:
-                    self.entry['style'] = 'unedited.TEntry'
+                    self._entry['style'] = 'unedited.TEntry'
                     
         return locals()
     
