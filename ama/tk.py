@@ -76,6 +76,7 @@ class TkAsker(Asker):
         
         okcancel = ttk.Frame(self._root, padding=(3,3,3,3))
         
+        # Swap the order of buttons for Windows
         if sys.platform.startswith('win32'):
             btn_column = (1,2)
         else:
