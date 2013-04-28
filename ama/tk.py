@@ -47,8 +47,8 @@ class TkAsker(Asker):
         self._row = 0
         self._ask = OrderedDict()
 
-        self.root = tk.Tk()
-        self.root.title(self._title)
+        self._root = tk.Tk()
+        self._root.title(self._title)
         
         self._edited_entry = ttk.Style()
         self._edited_entry.configure('edited.TEntry', foreground='black')
@@ -58,11 +58,11 @@ class TkAsker(Asker):
 
         header_font = font.Font(family='TkDefaultFont')
         header_font.configure(weight='bold')
-        header = ttk.Label(self.root, text=self._preamble, padding=3,
+        header = ttk.Label(self._root, text=self._preamble, padding=3,
                            font=header_font, wraplength=420)
         header.grid(column=0, row=0, sticky=(tk.N, tk.EW))
         
-        self.content = ttk.Frame(self.root, padding=(3,3,3,3))
+        self.content = ttk.Frame(self._root, padding=(3,3,3,3))
         self.content.grid(column=0, row=1, sticky=(tk.N, tk.S, tk.E, tk.W))
         self.content.columnconfigure(0, weight=1)
 
@@ -71,10 +71,10 @@ class TkAsker(Asker):
         self.content.columnconfigure(2, weight=0)
         self.content.columnconfigure(3, weight=0)
         
-        self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(0, weight=0)
+        self._root.columnconfigure(0, weight=1)
+        self._root.rowconfigure(0, weight=0)
         
-        okcancel = ttk.Frame(self.root, padding=(3,3,3,3))
+        okcancel = ttk.Frame(self._root, padding=(3,3,3,3))
         
         if sys.platform.startswith('win32'):
             btn_column = (1,2)
@@ -92,12 +92,12 @@ class TkAsker(Asker):
         okcancel.columnconfigure(2, weight=0)
         
         okcancel.grid(column=0, row=2, sticky=(tk.E, tk.W, tk.S))
-        self.root.rowconfigure(2, weight=1)
+        self._root.rowconfigure(2, weight=1)
         
-        self.root.protocol('WM_DELETE_WINDOW', self._cancel)
+        self._root.protocol('WM_DELETE_WINDOW', self._cancel)
         
         if sys.platform.startswith('darwin'):
-            self.root.createcommand("::tk::mac::Quit", self._cancel)
+            self._root.createcommand("::tk::mac::Quit", self._cancel)
     
     def add_question(self, key, question):
         tkq = TkQuestion(self, self._row,
@@ -125,7 +125,7 @@ class TkAsker(Asker):
     def go(self, initial_answers):
         self._result = {}
         self.update_answers()
-        self.root.mainloop()
+        self._root.mainloop()
         return self._result
 
     def _is_valid(self):
@@ -146,12 +146,12 @@ class TkAsker(Asker):
             
         self._result['answers'] = answers
         
-        self.root.destroy()
+        self._root.destroy()
     
     def _cancel(self, event=None):
         self._result['valid'] = False
         self._result['result'] = 'cancel'
-        self.root.destroy()
+        self._root.destroy()
 
 
 class TkQuestion(object):
@@ -185,7 +185,7 @@ class TkQuestion(object):
             self.info_label['text'] = '?'
             self.tooltip = ToolTip(self.info_label, msg=self._help_text, delay=0.5)
         
-        self._validate_entry = (asker.root.register(self._tk_validate),
+        self._validate_entry = (asker._root.register(self._tk_validate),
                                 '%P', '%V')
 
         current_answers = self._asker.current_answers()
