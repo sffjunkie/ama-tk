@@ -296,7 +296,7 @@ class TkQuestion(object):
                 self._var.set(value)
             except ValueError:
                 self._var.set(value)
-                self.valid = True
+                self.valid = False
                 
         return locals()
     
