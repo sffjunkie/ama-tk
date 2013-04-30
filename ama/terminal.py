@@ -53,6 +53,7 @@ class TerminalAsker(Asker):
                 answers[key] = answer
                 
             result[u'answers'] = answers
+            result[u'valid'] = True
             result[u'result'] = 'ok'
         except (KeyboardInterrupt, EOFError):
             try:
