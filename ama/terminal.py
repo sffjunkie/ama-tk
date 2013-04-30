@@ -18,6 +18,7 @@ except ImportError:
     pass
 
 try:
+    # Try assigning the Python 2 version of the input function
     input = raw_input
 except:
     pass
