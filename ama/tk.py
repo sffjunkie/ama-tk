@@ -121,7 +121,8 @@ class TkAsker(Asker):
         answers = self.current_answers(update_info)
             
         for key, tkq in self._ask.items():
-            if (update_info is None or key != update_info[0]) and not tkq.edited:
+            if (update_info is None or key != update_info[0]) and \
+            (not tkq.edited or key == update_info[0]):
                 tkq.update(answers)
 
     def go(self, initial_answers):
@@ -169,10 +170,11 @@ class TkQuestion(object):
         self._label = question.label
         self._type = question.type
         self._default = question.default
-        if question.validator and question.validator.startswith('path'):
+        self._validator = question.validator
+        if self._validator and self._validator.startswith('path'):
             self._default = os.path.normpath(self._default)
             
-        self._validate = asker.validator(question.type, question.validator)
+        self._validate = asker.validator(self._type, self._validator)
 
         self._var = None
         self._asker = asker
@@ -200,7 +202,7 @@ class TkQuestion(object):
 
         current_answers = self._asker.current_answers()
 
-        if question.validator and question.validator.startswith('path'):
+        if self._validator and self._validator.startswith('path'):
             self._var = tk.StringVar()
             frame = ttk.Frame(asker.content)
             self._entry = ttk.Entry(frame, textvariable=self._var,
@@ -215,7 +217,7 @@ class TkQuestion(object):
 
             self.update(current_answers)
             
-        elif self._type == 'str' or self._type == 'nonempty':
+        elif self._type == 'str':
             self._var = tk.StringVar()
             self._entry = ttk.Entry(asker.content, textvariable=self._var,
                                    validate='all',
@@ -243,13 +245,13 @@ class TkQuestion(object):
 
             self.update(current_answers)
             
-        elif self._type == 'bool' or self._type == 'yesno' or \
+        elif self._type == 'bool' or self._validator == 'yesno' or \
             isinstance(self._type, bool):
             self._var = tk.BooleanVar()
             self.value = self._default
             frame = ttk.Frame(asker.content)
             
-            if self._type == 'yesno':
+            if self._validator == 'yesno':
                 text = ('Yes', 'No')
             else:
                 text = ('True', 'False')

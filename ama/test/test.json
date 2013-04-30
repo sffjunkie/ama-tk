@@ -29,17 +29,17 @@
     ],
 "show_yesno":
 	["Really everything",
-     "yesno",
+     "bool",
      false,
      "Do you really want to show every single item in the whole world",
-     null
+     "yesno"
     ],
 "something":
 	["A non empty field",
-     "nonempty",
+     "str",
      "a",
      "You really have to enter something",
-     null
+     "nonempty"
     ],
 "path2":
     ["Another path",

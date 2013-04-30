@@ -78,7 +78,7 @@ class TerminalAsker(Asker):
         """Ask a single question"""
         
         prompt_tail = ''
-        if question.type == 'yesno':
+        if question.validator == 'yesno':
             if not question.label.endswith(' (y/n)'):
                 prompt_tail = ' (y/n)'
             if question.default == True or question.default == 'y':
