@@ -18,6 +18,15 @@ from collections import namedtuple, OrderedDict
 
 from ama.validator import Validators
 
+import sys
+if sys.version < '3':
+    import codecs
+    def u(x):
+        return codecs.unicode_escape_decode(x)[0]
+else:
+    def u(x):
+        return x
+        
 _Question = namedtuple('question',
                        'key label type default help_text validator')
 
