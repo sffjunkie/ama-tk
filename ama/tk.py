@@ -40,10 +40,11 @@ from ama import Asker
 from ama.tk_tooltip import ToolTip
 
 class TkAsker(Asker):
-    def __init__(self, title, preamble='', filename=''):
+    def __init__(self, title, preamble='', filename='', allow_invalid=True):
         Asker.__init__(self, filename)
         self._title = title
         self._preamble = preamble
+        self._allow_invalid = allow_invalid
         self._row = 0
         self._ask = OrderedDict()
 
@@ -82,8 +83,8 @@ class TkAsker(Asker):
         else:
             btn_column = (2,1)
             
-        ok = ttk.Button(okcancel, text='OK', width=10, command=self._ok)
-        ok.grid(column=btn_column[0], row=0, padx=(6, 0))
+        self.ok_btn = ttk.Button(okcancel, text='OK', width=10, command=self._ok)
+        self.ok_btn.grid(column=btn_column[0], row=0, padx=(6, 0))
         cancel = ttk.Button(okcancel, text='Cancel', width=10,
                             command=self._cancel)
         cancel.grid(column=btn_column[1], row=0, padx=(6, 0))
@@ -129,13 +130,20 @@ class TkAsker(Asker):
         self._root.mainloop()
         return self._result
 
+    def check_invalid(self):
+        if not self._allow_invalid and not self._is_valid():
+            self.ok_btn.state(['disabled'])
+        else:
+            self.ok_btn.state(['!disabled'])
+            
+        self.ok_btn.update_idletasks()
+
     def _is_valid(self):
-        valid = True
         for _key, question in self._ask.items():
             if not question.valid:
-                valid = False
+                return False
         
-        return valid
+        return True
     
     def _ok(self, event=None):
         self._result['valid'] = self._is_valid()
@@ -143,7 +151,7 @@ class TkAsker(Asker):
         
         answers = {}
         for key, tkq in self._ask.items():
-            answers[key] = tkq.validated_answer()
+            answers[key] = tkq.value
             
         self._result['answers'] = answers
         
@@ -341,6 +349,7 @@ class TkQuestion(object):
         return self._validate(self.value)
 
     def _tk_validate(self, P, V):
+        rtn = 1
         if V == 'focusout':
             if P.strip() == '':
                 self.valid = True
@@ -351,14 +360,16 @@ class TkQuestion(object):
                     self.valid = True
                 except:
                     self.valid = False
-                    return 0
+                    rtn = 0
+                
+            self._asker.check_invalid()
         elif V == 'key':
             if not self.edited:
                 self.edited = True
             
             self._asker.update_answers((self._key, P))
 
-        return 1
+        return rtn
     
     def _browse_for_directory(self, *args):
         path_entry = self.value
