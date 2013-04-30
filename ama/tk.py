@@ -36,7 +36,7 @@ try:
 except ImportError:
     import tkFileDialog as filedialog
 
-from ama import Asker
+from ama import Asker, u
 from ama.tk_tooltip import ToolTip
 
 class TkAsker(Asker):
@@ -378,8 +378,8 @@ class TkQuestion(object):
         new_path = filedialog.askdirectory(initialdir=path_entry)
         new_path = os.path.normpath(new_path)
         
-        home_path = unicode(os.path.expanduser('~'))
-        current_path = unicode(os.getcwd())
+        home_path = u(os.path.expanduser('~'))
+        current_path = u(os.getcwd())
         
         if new_path == home_path:
             new_path = '~'
