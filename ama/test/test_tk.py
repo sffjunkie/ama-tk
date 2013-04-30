@@ -25,7 +25,7 @@ __version__ = '0.1'
 def test_Tk():
     title = 'Test questions'
     preamble = 'Please enter values for the following settings'
-    asker = TkAsker(title, preamble, 'test.json')    
+    asker = TkAsker(title, preamble, 'test.json', allow_invalid=False)    
     new_answers = asker.ask(all_questions=True)
     pprint(new_answers)
     
