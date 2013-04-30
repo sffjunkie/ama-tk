@@ -293,7 +293,7 @@ class TkQuestion(object):
     def value():
         def fget(self):
             try:
-                return self._var.get()
+                return self._validate(self._var.get())
             except:
                 return self._entry.get()
         
@@ -345,9 +345,6 @@ class TkQuestion(object):
     
     edited = property(**edited())
     
-    def validated_answer(self):
-        return self._validate(self.value)
-
     def _tk_validate(self, P, V):
         rtn = 1
         if V == 'focusout':
