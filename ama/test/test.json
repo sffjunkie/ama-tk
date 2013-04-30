@@ -44,7 +44,7 @@
 "path2":
     ["Another path",
      "str",
-     "",
+     "pypirc",
      "A second path used by the next question to join 2 together",
      null
     ],
@@ -53,6 +53,6 @@
      "str",
      "{path}/{path2}",
      "Joining of path & path2",
-     null
+     "path"
     ]
 }
