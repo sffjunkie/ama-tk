@@ -16,19 +16,20 @@
 are checked that they...
 
 :str: can be converted to a string 
-:yesno: match one of 'yes', 'y', 'no', 'n' with any case plus True and False
 :bool: can be converted to a boolean value
 :int: can be converted to an integer value
 :float: can be converted to a floating point value
+:yesno: match one of 'yes', 'y', 'no', 'n' with any case plus True and False
 :re(regexp): matches the regular expression `regexp`
 :path: is a valid path name that exists
 :path(empty): is a valid path name that is empty
 :path(nonempty): is a valid path name that is not empty
-:path(filespec): is a valid path name that contains files that conform to `filespec`
+:path(pathspec): is a valid path name that contains files that conform to `filespec`
 
-`filespec` is of the form [+-]pattern where the leading '+' indicates that
+`pathspec` is of the form [+-]glob where the leading '+' indicates that
 the path must include a file that matches the pattern and '-' indicates that
-it must not include files that match pattern.
+it must not include files that match pattern. Multiple pathspecs can be
+specified separated by commas.
 """
 
 import re
