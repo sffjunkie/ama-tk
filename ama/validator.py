@@ -47,18 +47,6 @@ __all__ = ['Validators']
 def validate_str(value):
     return str(value)
 
-def validate_yesno(value):
-    if str(value).lower() in ['yes', 'y']:
-        return True
-    elif str(value).lower() in ['no', 'n']:
-        return False
-    elif value == True:
-        return True
-    elif value == False:
-        return False
-    else:
-        raise ValueError('Please enter one of "y", "Y", "n" or "N"')
-
 def validate_bool(value):
     true_values = ['true', '1', 'yes', 'y']
     false_values = ['false', '0', 'no', 'n']
@@ -189,7 +177,7 @@ class _Registry():
     def __init__(self):
         self._validators = {
             'str': lambda value: str(value),
-            'yesno': validate_yesno,
+            'yesno': validate_bool,
             'bool': validate_bool,
             'int': validate_int,
             'float': validate_float,
