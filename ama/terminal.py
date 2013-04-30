@@ -29,6 +29,8 @@ from ama.validator import validate_bool
 from ama.color import bright_green, cyan, bright_red
 
 class TerminalAsker(Asker):
+    """Ask the questions by using the terminal"""
+    
     def __init__(self, title, preamble='', filename=''):
         Asker.__init__(self, filename)
         self._title = title
@@ -36,9 +38,16 @@ class TerminalAsker(Asker):
         self._ask = OrderedDict()
     
     def add_question(self, key, question):
+        """Add a question to the list of questions.
+        
+        Called by the :meth:`Asker.ask` method or by your code.
+        """
+        
         self._ask[key] = question
     
     def go(self, initial_answers):
+        """Perform the question asking"""
+        
         print(bright_green(self._title))
         print(bright_green('-'*len(self._title)))
         if self._preamble != '':
@@ -65,6 +74,8 @@ class TerminalAsker(Asker):
         return result
 
     def ask_question(self, question, initial_answers, answers):
+        """Ask a single question"""
+        
         prompt_tail = ''
         if question.type == 'yesno':
             if not question.label.endswith(' (y/n)'):
