@@ -287,13 +287,13 @@ class TkQuestion(object):
             try:
                 return self._var.get()
             except:
-                text = self._entry.get()
-                return self._validate(text)
+                return self._entry.get()
         
         def fset(self, value):
             try:
                 value = self._validate(value)
                 self._var.set(value)
+                self.valid = True
             except ValueError:
                 self._var.set(value)
                 self.valid = False
