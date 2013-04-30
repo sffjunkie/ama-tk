@@ -182,21 +182,23 @@ def validate_path_with_spec(pathspec):
 
 def validate_nonempty(value):
     if value is None or str(value) == '':
-        raise ValueError("Please enter some text.")
+        raise ValueError("Please enter something in this field.")
     return value
 
 class _Registry():
     def __init__(self):
         self._validators = {
             'str': lambda value: str(value),
+            'yesno': validate_yesno,
+            'bool': validate_bool,
             'int': validate_int,
             'float': validate_float,
-            'bool': validate_bool,
+            # 're(regex)'
             'path': validate_path,
             'path(empty)': validate_path_empty,
             'path(nonempty)': validate_path_nonempty,
+            # 'path(pathspec)'
             'nonempty': validate_nonempty,
-            'yesno': validate_yesno,
         }
         
         self._entry_point_re = re.compile('\w+(\.\w)?\:\w+(\.\w)?')
