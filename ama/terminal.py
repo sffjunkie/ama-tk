@@ -23,6 +23,7 @@ try:
 except:
     pass
 
+from os.path import normpath
 from collections import OrderedDict
 
 from ama import Asker
@@ -91,6 +92,9 @@ class TerminalAsker(Asker):
                 default = question.default.format(**answers)
             except:
                 default = question.default
+            
+            if question.validator and question.validator.startswith('path'):
+                default = normpath(default)
             
             prompt_tail = ' [%s]' % default
         
