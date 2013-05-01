@@ -59,7 +59,7 @@ class TerminalAsker(Asker):
         try:
             answers = {}
             for key, question in self._ask.items():
-                answer = self.ask_question(question, initial_answers, answers)
+                answer = self._ask_question(question, initial_answers, answers)
                 answers[key] = answer
                 
             result[u'answers'] = answers
@@ -74,7 +74,7 @@ class TerminalAsker(Asker):
             
         return result
 
-    def ask_question(self, question, initial_answers, answers):
+    def _ask_question(self, question, initial_answers, answers):
         """Ask a single question"""
         
         prompt_tail = ''
