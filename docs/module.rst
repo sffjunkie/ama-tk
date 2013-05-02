@@ -37,4 +37,11 @@ TkAsker
 .. autoclass:: ama.tk.TkAsker
    :members:
    :member-order: bysource 
+
+TkQuestion
+----------
+
+.. autoclass:: ama.tk.TkQuestion
+   :members:
+   :member-order: bysource 
    
