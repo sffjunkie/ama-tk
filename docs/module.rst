@@ -30,7 +30,7 @@ TerminalAsker
 .. autoclass:: ama.terminal.TerminalAsker
    :members:
    :member-order: bysource 
-
+   
 TkAsker
 -------
 
