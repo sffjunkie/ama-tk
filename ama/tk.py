@@ -40,7 +40,19 @@ from ama import Asker, u
 from ama.tk_tooltip import ToolTip
 
 class TkAsker(Asker):
-    """Displays a Tk window containing the questins to be asked."""
+    """Displays a Tk window containing the questins to be asked.
+    
+    :param title: The title to display
+    :type title:     str
+    :param preamble: Text to display before the questions
+    :type preamble:  str
+    :param filename: The filename from which to load a set of questions
+    :type filename:  str
+    :param allow_invlaid: If True then invalid answers are accepted.
+                          If False then you can't close the window until
+                          all answers are valid.
+    :type allow_invlaid:  bool
+    """
     
     def __init__(self, title, preamble='', filename='', allow_invalid=True):
         Asker.__init__(self, filename)
