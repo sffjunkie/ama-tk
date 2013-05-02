@@ -31,7 +31,7 @@ from ama.validator import validate_bool
 from ama.color import bright_green, cyan, bright_red
 
 class TerminalAsker(Asker):
-    """Ask the questions by using the terminal"""
+    """Ask the questions using the terminal."""
     
     def __init__(self, title, preamble='', filename=''):
         Asker.__init__(self, filename)

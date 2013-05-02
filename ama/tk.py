@@ -40,6 +40,8 @@ from ama import Asker, u
 from ama.tk_tooltip import ToolTip
 
 class TkAsker(Asker):
+    """Displays a Tk window containing the questins to be asked."""
+    
     def __init__(self, title, preamble='', filename='', allow_invalid=True):
         Asker.__init__(self, filename)
         self._title = title
@@ -102,12 +104,32 @@ class TkAsker(Asker):
             self._root.createcommand("::tk::mac::Quit", self._cancel)
     
     def add_question(self, key, question):
+        """Add a question to the list of questions.
+        
+        Called by the :meth:`Asker.ask` method or by your code.
+        """
+        
         tkq = TkQuestion(self, self._row,
                          question)
         self._ask[key] = tkq
         self._row = self._row + 1
 
+    def go(self, initial_answers):
+        """Perform the question asking by displaying in a Tkinter window"""
+        
+        self._result = {}
+        self.update_answers()
+        self._root.mainloop()
+        return self._result
+
     def current_answers(self, update_info=None):
+        """Return a dictionary of the current answers to the questions.
+        
+        :param update_info:   A 2 element tuple containing the key of a
+                              question and its new value.
+        :type update_info:    tuple
+        """
+        
         current_answers = {}
         for key, tkq in self._ask.items():
             current_answers[key] = tkq.value
@@ -118,6 +140,8 @@ class TkAsker(Asker):
         return current_answers
     
     def update_answers(self, update_info=None):
+        """Update all unedited answers with the values from the other answers"""
+        
         answers = self.current_answers(update_info)
             
         for key, tkq in self._ask.items():
@@ -125,13 +149,11 @@ class TkAsker(Asker):
             (not tkq.edited or key == update_info[0]):
                 tkq.update(answers)
 
-    def go(self, initial_answers):
-        self._result = {}
-        self.update_answers()
-        self._root.mainloop()
-        return self._result
-
     def check_invalid(self):
+        """If we don't allow invalid answers then disable the OK button if
+        we have any.
+        """
+        
         if not self._allow_invalid and not self._is_valid():
             self.ok_btn.state(['disabled'])
         else:
@@ -140,6 +162,8 @@ class TkAsker(Asker):
         self.ok_btn.update_idletasks()
 
     def _is_valid(self):
+        """Check if all the answers are valid."""
+        
         for _key, question in self._ask.items():
             if not question.valid:
                 return False
@@ -147,6 +171,8 @@ class TkAsker(Asker):
         return True
     
     def _ok(self, event=None):
+        """Respond to the OK button being pressed."""
+        
         self._result['valid'] = self._is_valid()
         self._result['result'] = 'ok'
         
@@ -159,12 +185,16 @@ class TkAsker(Asker):
         self._root.destroy()
     
     def _cancel(self, event=None):
+        """Respond to the Cancel button being pressed."""
+        
         self._result['valid'] = False
         self._result['result'] = 'cancel'
         self._root.destroy()
 
 
 class TkQuestion(object):
+    """Displays the controls for a single question."""
+    
     def __init__(self, asker, row, question):
         self._key = question.key
         self._label = question.label
@@ -289,6 +319,8 @@ class TkQuestion(object):
         asker.content.rowconfigure(self._row, weight=0)
         
     def update(self, current_answers):
+        """Update our unedited value with the other answers."""
+        
         updated_answer = str(self._default).format(**current_answers)
         self.value = updated_answer
         
