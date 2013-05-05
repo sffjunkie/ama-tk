@@ -14,6 +14,7 @@
 
 import sys
 import os.path
+from datetime import date
 from collections import OrderedDict
 
 try:
@@ -38,6 +39,7 @@ except ImportError:
 
 from ama import Asker, u
 from ama.tk_tooltip import ToolTip
+from ama.tk_date import DateDialog
 
 class TkAsker(Asker):
     """Displays a Tk window containing the questins to be asked.
@@ -71,8 +73,7 @@ class TkAsker(Asker):
         self._unedited_entry = ttk.Style()
         self._unedited_entry.configure('unedited.TEntry', foreground='#666')
 
-        header_font = font.Font(family='TkDefaultFont')
-        header_font.configure(weight='bold')
+        header_font = font.Font(family='TkDefaultFont', weight='bold')
         header = ttk.Label(self._root, text=self._preamble, padding=3,
                            font=header_font, wraplength=420)
         header.grid(column=0, row=0, sticky=(tk.N, tk.EW))
@@ -259,6 +260,25 @@ class TkQuestion(object):
 
             self.update(current_answers)
             
+        elif self._validator and self._validator.startswith('date'):
+            self._var = tk.StringVar()
+            frame = ttk.Frame(asker.content)
+            self._entry = ttk.Entry(frame, textvariable=self._var,
+                                   validate='all',
+                                   validatecommand=self._validate_entry)
+            self._entry.grid(column=0, row=0, sticky=tk.EW)
+            btn = ttk.Button(frame, text='Select...',
+                             command=self._select_date)
+            btn.grid(column=1, row=0, sticky=tk.E)
+            frame.columnconfigure(0, weight=1)
+            frame.columnconfigure(1, weight=0)
+            
+            if self._default is None:
+                self.value = ''
+            else:
+                self.value = self._default
+                
+            
         elif self._type == 'str':
             self._var = tk.StringVar()
             self._entry = ttk.Entry(asker.content, textvariable=self._var,
@@ -333,8 +353,10 @@ class TkQuestion(object):
     def update(self, current_answers):
         """Update our unedited value with the other answers."""
         
-        updated_answer = str(self._default).format(**current_answers)
-        self.value = updated_answer
+        do_update = self._validator is None or not self._validator.startswith('date') 
+        if do_update:
+            updated_answer = str(self._default).format(**current_answers)
+            self.value = updated_answer
         
     def value():
         def fget(self):
@@ -435,3 +457,16 @@ class TkQuestion(object):
             
         self.value = new_path
         self._asker.update_answers((self._key, new_path))
+
+    def _select_date(self):
+        if self.value == '':
+            start_date = date.today()
+        else:
+            start_date = self.value
+            
+        dlg = DateDialog(self._asker._root, 'Select a Date...', start_date)
+        self._asker._root.wait_window(dlg._top)
+        new_date = dlg.date
+        if new_date != None:
+            self.value = new_date
+    
