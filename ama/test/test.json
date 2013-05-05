@@ -54,5 +54,12 @@
      "{path}/{path2}",
      "Joining of path & path2",
      "path"
+    ],
+"a_date":
+    ["Select a date",
+     "str",
+     null,
+     "A date",
+     "date"
     ]
 }
