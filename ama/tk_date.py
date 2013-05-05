@@ -65,6 +65,7 @@ class DateDialog(object):
         
         self.value = None
         self._top.bind('<Escape>', self._cancel)
+        self._top.protocol('WM_DELETE_WINDOW', self._cancel)
         self._top.lift()
         self._top.grab_set()
 
@@ -105,7 +106,7 @@ class DateSelector(ttk.Frame):
                                     command=self._prev_month)
         self._prev_btn.grid(row=0, column=0, sticky=tk.E)
         
-        month_font = font.Font(family='TkTextFont', weight='bold', size=10)
+        month_font = font.Font(family='TkTextFont', weight='bold', size=12)
         
         self._month_year_lbl = ttk.Label(self._header, text='January',
                                          width=16, style='month.TLabel',
