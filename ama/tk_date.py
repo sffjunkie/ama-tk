@@ -163,6 +163,11 @@ class DateSelector(ttk.Frame):
     
     year = property(**year())
     
+    def set_year_and_month(self, year, month):
+        self._year = year
+        self._month = month
+        self._update()
+    
     def _update_month_year(self):
         m = calendar.month_name[self._date.month]
         y = str(self._date.year)
