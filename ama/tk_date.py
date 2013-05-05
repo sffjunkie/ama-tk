@@ -34,12 +34,12 @@ except ImportError:
 
 
 class DateDialog(object):
-    def __init__(self, master, title, start_date=None):
+    def __init__(self, master, title, start_date=None, font_size=10):
         self._master = master
         self._top = tk.Toplevel(self._master)
         self._top.title(title)
         
-        self._selector = DateSelector(self._top, start_date)
+        self._selector = DateSelector(self._top, start_date, font_size)
         self._selector.grid(row=0, column=0, sticky=tk.NSEW)
         self._top.columnconfigure(0, weight=1)
         
@@ -85,11 +85,13 @@ class DateSelector(ttk.Frame):
     FILL_COLOR_SELECT = '#82bdbd'
     TEXT_COLOR_OTHER_MONTH = '#888'
     
-    def __init__(self, master, start_date=None):
+    def __init__(self, master, start_date=None, font_size=10):
         """Create a DateSelector widget"""
         
         self._master = master
         ttk.Frame.__init__(self, master)
+        
+        self._font_size = font_size
         
         self._txt_tag = ''
         self._rct_tag = ''
@@ -106,7 +108,7 @@ class DateSelector(ttk.Frame):
                                     command=self._prev_month)
         self._prev_btn.grid(row=0, column=0, sticky=tk.E)
         
-        month_font = font.Font(family='TkTextFont', weight='bold', size=12)
+        month_font = font.Font(family='TkTextFont', weight='bold', size=self._font_size)
         
         self._month_year_lbl = ttk.Label(self._header, text='January',
                                          width=16, style='month.TLabel',
@@ -165,13 +167,13 @@ class DateSelector(ttk.Frame):
         self._month_year_lbl['text'] = '%s, %s' % (m, y)
     
     def _create(self):
-        canvas_font = font.Font()
         week_days = self._calendar.formatweekheader(3).split(' ')
         
-        item_width = max(canvas_font.measure(day) for day in week_days)
+        day_font = font.Font(family='TkTextFont', size=self._font_size)
+        item_width = max(day_font.measure(day) for day in week_days)
         x_stride = item_width + 1
 
-        item_height = canvas_font.metrics('linespace') + 3
+        item_height = day_font.metrics('linespace') + 3
         y_stride = item_height + 3
         
         half_width = int(item_width/2)
@@ -189,7 +191,7 @@ class DateSelector(ttk.Frame):
             outline='')
         
         for day in week_days:
-            self._canvas.create_text((x_pos, y_pos), text=day)
+            self._canvas.create_text((x_pos, y_pos), text=day, font=day_font)
             x_pos = x_pos + x_stride
             
         y_pos += y_stride
@@ -235,7 +237,8 @@ class DateSelector(ttk.Frame):
                 
                 text_tag = 'txt%d:%d' % (week_number,day_number)
                 text_id = self._canvas.create_text((x_pos, y_pos-1), text='',
-                                              tags=[day_tag, text_tag])
+                                              tags=[day_tag, text_tag],
+                                              font=day_font)
                 
                 self._canvas.tag_bind(day_tag, '<Button-1>', _clicked)
 
