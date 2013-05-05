@@ -219,6 +219,8 @@ class TkQuestion(object):
             
         self._validate = asker.validator(self._type, self._validator)
 
+        self._dont_update = ['date', 'time']
+
         self._var = None
         self._asker = asker
         self._row = row
@@ -246,38 +248,21 @@ class TkQuestion(object):
         current_answers = self._asker.current_answers()
 
         if self._validator and self._validator.startswith('path'):
-            self._var = tk.StringVar()
-            frame = ttk.Frame(asker.content)
-            self._entry = ttk.Entry(frame, textvariable=self._var,
-                                   validate='all',
-                                   validatecommand=self._validate_entry)
-            self._entry.grid(column=0, row=0, sticky=tk.EW)
-            btn = ttk.Button(frame, text='Browse...',
-                             command=self._browse_for_directory)
-            btn.grid(column=1, row=0, sticky=tk.E)
-            frame.columnconfigure(0, weight=1)
-            frame.columnconfigure(1, weight=0)
+            frame = self._create_entry_with_button(asker.content,
+                'Browse...',
+                self._browse_for_directory)
 
             self.update(current_answers)
             
         elif self._validator and self._validator.startswith('date'):
-            self._var = tk.StringVar()
-            frame = ttk.Frame(asker.content)
-            self._entry = ttk.Entry(frame, textvariable=self._var,
-                                   validate='all',
-                                   validatecommand=self._validate_entry)
-            self._entry.grid(column=0, row=0, sticky=tk.EW)
-            btn = ttk.Button(frame, text='Select...',
-                             command=self._select_date)
-            btn.grid(column=1, row=0, sticky=tk.E)
-            frame.columnconfigure(0, weight=1)
-            frame.columnconfigure(1, weight=0)
+            frame = self._create_entry_with_button(asker.content,
+                'Select...',
+                self._select_date)
             
             if self._default is None:
                 self.value = ''
             else:
                 self.value = self._default
-                
             
         elif self._type == 'str':
             self._var = tk.StringVar()
@@ -352,8 +337,12 @@ class TkQuestion(object):
         
     def update(self, current_answers):
         """Update our unedited value with the other answers."""
-        
-        do_update = self._validator is None or not self._validator.startswith('date') 
+        if self._validator is None:
+            do_update = True
+        else:
+            name = self._validator.split('(')[0]
+            do_update =  name not in self._dont_update
+            
         if do_update:
             updated_answer = str(self._default).format(**current_answers)
             self.value = updated_answer
@@ -435,6 +424,24 @@ class TkQuestion(object):
             self._asker.update_answers((self._key, P))
 
         return rtn
+
+    def _create_entry_with_button(self, master, text, command):
+        self._var = tk.StringVar()
+        frame = ttk.Frame(master)
+        
+        self._entry = ttk.Entry(frame, textvariable=self._var, 
+            validate='all', 
+            validatecommand=self._validate_entry)
+        self._entry.grid(column=0, row=0, sticky=tk.EW)
+        
+        btn = ttk.Button(frame, text=text, 
+            command=command)
+        btn.grid(column=1, row=0, sticky=tk.E)
+        
+        frame.columnconfigure(0, weight=1)
+        frame.columnconfigure(1, weight=0)
+        
+        return frame
     
     def _browse_for_directory(self, *args):
         path_entry = self.value
