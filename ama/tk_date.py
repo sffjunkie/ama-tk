@@ -51,7 +51,8 @@ class DateDialog(object):
         else:
             btn_column = (2,1)
             
-        self.ok_btn = ttk.Button(okcancel, text='OK', width=10, command=self._ok)
+        self.ok_btn = ttk.Button(okcancel, text='OK', width=10,
+                                 command=self._ok)
         self.ok_btn.grid(column=btn_column[0], row=0, padx=(6, 0))
         cancel = ttk.Button(okcancel, text='Cancel', width=10,
                             command=self._cancel)
@@ -108,7 +109,8 @@ class DateSelector(ttk.Frame):
                                     command=self._prev_month)
         self._prev_btn.grid(row=0, column=0, sticky=tk.E)
         
-        month_font = font.Font(family='TkTextFont', weight='bold', size=self._font_size)
+        month_font = font.Font(family='TkTextFont', weight='bold',
+                               size=self._font_size)
         
         self._month_year_lbl = ttk.Label(self._header, text='January',
                                          width=16, style='month.TLabel',
@@ -186,7 +188,8 @@ class DateSelector(ttk.Frame):
         
         rect_width = x_stride * 6.5
         self._canvas.create_rectangle(
-            (x_start - half_width, y_start - half_height, x_start + rect_width, y_start + half_height),
+            (x_start - half_width, y_start - half_height,
+             x_start + rect_width, y_start + half_height),
             fill=self.FILL_COLOR_HEADER,
             outline='')
         
