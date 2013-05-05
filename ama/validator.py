@@ -181,7 +181,6 @@ def validate_date(value):
     
     try:
         d = datetime.strptime(value, '%Y-%m-%d')
-        print('date: %s' % str(d))
         return d.date()
     except:
         raise ValueError('Please enter a valid date in YYYY-MM-DD format.')
