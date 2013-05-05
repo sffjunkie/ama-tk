@@ -37,6 +37,7 @@ import csv
 import glob
 from io import StringIO
 from os import path, listdir
+from datetime import datetime
 
 try:
     from pkg_resources import load_entry_point
@@ -174,6 +175,17 @@ def validate_nonempty(value):
         raise ValueError("Please enter something in this field.")
     return value
 
+def validate_date(value):
+    if value is None or value == '':
+        return ''
+    
+    try:
+        d = datetime.strptime(value, '%Y-%m-%d')
+        print('date: %s' % str(d))
+        return d.date()
+    except:
+        raise ValueError('Please enter a valid date in YYYY-MM-DD format.')
+
 class _Registry():
     def __init__(self):
         self._validators = {
@@ -188,6 +200,7 @@ class _Registry():
             'path(nonempty)': validate_path_nonempty,
             # 'path(pathspec)'
             'nonempty': validate_nonempty,
+            'date': validate_date,
         }
         
         self._entry_point_re = re.compile('\w+(\.\w)?\:\w+(\.\w)?')
