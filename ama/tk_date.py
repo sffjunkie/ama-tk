@@ -161,7 +161,7 @@ class DateSelector(ttk.Frame):
             
         return locals()
     
-    month = property(**year())
+    year = property(**year())
     
     def _update_month_year(self):
         m = calendar.month_name[self._date.month]
