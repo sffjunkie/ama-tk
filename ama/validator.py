@@ -37,7 +37,7 @@ import csv
 import glob
 from io import StringIO
 from os import path, listdir
-from datetime import datetime
+from datetime import datetime, date, time
 
 try:
     from pkg_resources import load_entry_point
@@ -179,11 +179,30 @@ def validate_date(value):
     if value is None or value == '':
         return ''
     
-    try:
-        d = datetime.strptime(value, '%Y-%m-%d')
-        return d.date()
-    except:
-        raise ValueError('Please enter a valid date in YYYY-MM-DD format.')
+    if isinstance(value, datetime):
+        return value.date()
+    elif isinstance(value, date):
+        return value
+    else:
+        try:
+            d = datetime.strptime(value, '%Y-%m-%d')
+            return d.date()
+        except:
+            raise ValueError('Please enter a valid date in YYYY-MM-DD format.')
+
+def validate_time(value):
+    if value is None or value == '':
+        return ''
+    
+    if isinstance(value, time):
+        return value
+    else:
+        try:
+            d = datetime.strptime(value, '%H:%M:%S')
+            return d.time()
+        except:
+            raise ValueError('Please enter a valid time in HH-MM-SS format.')
+
 
 class _Registry():
     def __init__(self):
@@ -200,6 +219,7 @@ class _Registry():
             # 'path(pathspec)'
             'nonempty': validate_nonempty,
             'date': validate_date,
+            'time': validate_time,
         }
         
         self._entry_point_re = re.compile('\w+(\.\w)?\:\w+(\.\w)?')
