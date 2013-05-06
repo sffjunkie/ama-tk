@@ -34,7 +34,7 @@ except ImportError:
 
 
 class DateDialog(object):
-    def __init__(self, master, title, start_date=None, font_size=10):
+    def __init__(self, master, title, start_date=None, font_size=-1):
         self._master = master
         self._top = tk.Toplevel(self._master)
         self._top.title(title)
@@ -71,14 +71,14 @@ class DateDialog(object):
         self._top.grab_set()
 
     def _ok(self, event=None):
+        self.date = self._selector._date
         self._top.grab_release()
         self._top.destroy()
-        self.date = self._selector._date
     
     def _cancel(self, event=None):
+        self.date = None
         self._top.grab_release()
         self._top.destroy()
-        self.date = None
 
 class DateSelector(ttk.Frame):
     FILL_COLOR_HEADER = '#ccc'
@@ -86,7 +86,7 @@ class DateSelector(ttk.Frame):
     FILL_COLOR_SELECT = '#82bdbd'
     TEXT_COLOR_OTHER_MONTH = '#888'
     
-    def __init__(self, master, start_date=None, font_size=10):
+    def __init__(self, master, start_date=None, font_size=-1):
         """Create a DateSelector widget"""
         
         self._master = master
@@ -109,8 +109,9 @@ class DateSelector(ttk.Frame):
                                     command=self._prev_month)
         self._prev_btn.grid(row=0, column=0, sticky=tk.E)
         
-        month_font = font.Font(family='TkTextFont', weight='bold',
-                               size=self._font_size)
+        month_font = font.Font(family='TkDefaultFont', weight='bold')
+        if self._font_size != -1:
+            month_font['size'] = self._font_size
         
         self._month_year_lbl = ttk.Label(self._header, text='January',
                                          width=16, style='month.TLabel',
@@ -124,7 +125,7 @@ class DateSelector(ttk.Frame):
         self._header.columnconfigure(0, weight=1)
         self._header.columnconfigure(1, weight=0)
         self._header.columnconfigure(2, weight=1)
-        self.grid(row=0, column=0, sticky=(tk.N, tk.EW))
+        self.grid(row=0, column=0, sticky=(tk.N, tk.EW), padx=3, pady=3)
         self.columnconfigure(0, weight=1)
         
         self._canvas = tk.Canvas(self)
@@ -176,9 +177,12 @@ class DateSelector(ttk.Frame):
     def _create(self):
         week_days = self._calendar.formatweekheader(3).split(' ')
         
-        day_font = font.Font(family='TkTextFont', size=self._font_size)
+        day_font = font.Font(family='TkFixedFont')
+        if self._font_size != -1:
+            day_font['size'] = self._font_size
+            
         item_width = max(day_font.measure(day) for day in week_days)
-        x_stride = item_width + 1
+        x_stride = item_width * 1.25
 
         item_height = day_font.metrics('linespace') + 3
         y_stride = item_height + 3
