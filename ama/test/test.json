@@ -57,9 +57,16 @@
     ],
 "a_date":
     ["Select a date",
-     "str",
+     null,
      null,
      "A date",
      "date"
+    ],
+"a_time":
+    ["Select a time",
+     null,
+     null,
+     "A time",
+     "time"
     ]
 }
