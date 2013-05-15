@@ -228,6 +228,14 @@ def validate_time(format=DEFAULT_TIME_FORMAT):
     return validate
 
 
+def extract_spec(key):
+    start = key.find('(')
+    if start != -1 and key[-1] == ')':
+        return key[start:-1]
+    else:
+        return ''
+    
+
 class _Registry():
     def __init__(self):
         self._validators = {
@@ -242,8 +250,8 @@ class _Registry():
             'path(nonempty)': validate_path_nonempty,
             # 'path(pathspec)'
             'nonempty': validate_nonempty,
-            # 'date': validate_date,
-            # 'time[([timespec])]': validate_time,
+            # 'date(datespec)': validate_date,
+            # 'time(timespec)': validate_time,
         }
         
         self._entry_point_re = re.compile('\w+(\.\w)?\:\w+(\.\w)?')
@@ -256,7 +264,8 @@ class _Registry():
             return self._validators[key]
         
         if key.startswith('re'):
-            if len(key) > 2 and key[2] == '(' and key[-1] == ')':
+            spec = extract_spec(key)
+            if spec != '':
                 regex = key[3:-1]
                 func = validate_regex(regex)
             else:
@@ -265,7 +274,8 @@ class _Registry():
             return func
         
         elif key.startswith('path'):
-            if len(key) > 4 and key[4] == '(' and key[-1] == ')':
+            spec = extract_spec(key)
+            if spec != '':
                 spec = key[5:-1]
                 func = validate_path_with_spec(spec)
             else:
@@ -274,7 +284,8 @@ class _Registry():
             return func
         
         elif key.startswith('date'):
-            if len(key) > 4 and key[4] == '(' and key[-1] == ')':
+            spec = extract_spec(key)
+            if spec != '':
                 spec = key[5:-1]
                 func = validate_date(spec)
             else:
@@ -283,7 +294,8 @@ class _Registry():
             return func
         
         elif key.startswith('time'):
-            if len(key) > 4 and key[4] == '(' and key[-1] == ')':
+            spec = extract_spec(key)
+            if spec != '':
                 spec = key[5:-1]
                 func = validate_time(spec)
             else:
