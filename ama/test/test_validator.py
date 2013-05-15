@@ -144,8 +144,8 @@ def test_date():
     assert v('2013-04-23') == d
     
 def test_extract_spec():
-    assert extract_spec('re:()') == ''
-    assert extract_spec('re:([0-9]?)') == '[0-9]?'
+    assert extract_spec('re()') == ''
+    assert extract_spec('re([0-9]?)') == '[0-9]?'
     
 
 if __name__ == '__main__':
