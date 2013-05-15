@@ -14,7 +14,8 @@
 
 import os
 import tempfile
-from ama.validator import Validators
+import datetime
+from ama.validator import Validators, extract_spec
 
 from pytest import raises
 
@@ -137,6 +138,15 @@ def test_validate_path_contains_and_does_not_contain_fail():
             v(dname)
     os.rmdir(d)
 
+def test_date():
+    v = Validators['date']
+    d = datetime.date(2013, 04, 23)
+    assert v('2013-04-23') == d
+    
+def test_extract_spec():
+    assert extract_spec('re:()') == ''
+    assert extract_spec('re:([0-9]?)') == '[0-9]?'
+    
 
 if __name__ == '__main__':
     test_validate_str()
@@ -156,4 +166,6 @@ if __name__ == '__main__':
     test_validate_path_does_not_contain_fail()
     test_validate_path_contains_and_does_not_contain()
     test_validate_path_contains_and_does_not_contain_fail()
+    test_date()
+    test_extract_spec()
     
