@@ -178,9 +178,9 @@ def validate_nonempty(value):
         raise ValueError("Please enter something in this field.")
     return value
 
-def validate_date(format=DEFAULT_DATE_FORMAT):
-    if format == '':
-        format = DEFAULT_DATE_FORMAT
+def validate_date(date_format=DEFAULT_DATE_FORMAT):
+    if date_format == '':
+        date_format = DEFAULT_DATE_FORMAT
     
     def validate(value):
         if value is None or value == '':
@@ -196,17 +196,17 @@ def validate_date(format=DEFAULT_DATE_FORMAT):
             d = datetime.strptime(value, '%Y-%m-%d')
             return d.date()
         except:
-            f = format
+            f = date_format
             format_conv = {'%Y': 'YYYY', '%y': 'YY', '%m': 'MM', '%d': 'DD'}
             for k, v in format_conv.items(): 
                 f = f.replace(k, v)
-            raise ValueError('Please enter a valid date in %s format.' % f)
+            raise ValueError('Please enter a valid date in %s date_format.' % f)
         
     return validate
 
-def validate_time(format=DEFAULT_TIME_FORMAT):
-    if format == '':
-        format = DEFAULT_TIME_FORMAT
+def validate_time(time_format=DEFAULT_TIME_FORMAT):
+    if time_format == '':
+        time_format = DEFAULT_TIME_FORMAT
         
     def validate(value):
         if value is None or value == '':
@@ -216,14 +216,14 @@ def validate_time(format=DEFAULT_TIME_FORMAT):
             return value
 
         try:
-            d = datetime.strptime(value, format)
+            d = datetime.strptime(value, time_format)
             return d.time()
         except:
-            f = format
+            f = time_format
             format_conv = {'%H': 'hh', '%M': 'mm', '%S': 'ss'}
             for k, v in format_conv.items(): 
                 f = f.replace(k, v)
-            raise ValueError('Please enter a valid time in %s format.' % f)
+            raise ValueError('Please enter a valid time in %s time_format.' % f)
         
     return validate
 
