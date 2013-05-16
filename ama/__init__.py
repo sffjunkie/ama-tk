@@ -96,6 +96,12 @@ class Asker(object):
         result = self.go(initial_answers)
         return result
 
+    def add_question(self):
+        """Overridden by subclasses to add a question to the list to ask.
+        Called by the :meth:`~ama.Asdker.ask` method"""
+        
+        raise NotImplemented
+
     def go(self):
         """Overridden by subclasses to ask the questions. Subclasses should
         return a dictionary of the answers"""
