@@ -227,7 +227,6 @@ def validate_time(time_format=DEFAULT_TIME_FORMAT):
         
     return validate
 
-
 def extract_spec(key):
     start = key.find('(')
     if start != -1 and key[-1] == ')':
