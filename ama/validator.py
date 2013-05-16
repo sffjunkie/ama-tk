@@ -12,24 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Provides a dictionary of validation functions to test values. Values
-are checked that they...
+"""Provides a dictionary of validation functions to test values.
 
-:str: can be converted to a string 
-:bool: can be converted to a boolean value
-:int: can be converted to an integer value
-:float: can be converted to a floating point value
-:yesno: match one of 'yes', 'y', 'no', 'n' with any case plus True and False
-:re(regexp): matches the regular expression `regexp`
-:path: is a valid path name that exists
-:path(empty): is a valid path name that is empty
-:path(nonempty): is a valid path name that is not empty
-:path(pathspec): is a valid path name that contains files that conform to `filespec`
-
-`pathspec` is of the form [+-]glob where the leading '+' indicates that
-the path must include a file that matches the pattern and '-' indicates that
-it must not include files that match pattern. Multiple pathspecs can be
-specified separated by commas.
+========================  ======================================================
+Validator Name            Tests that the value...
+========================  ======================================================
+``str``                   can be converted to a string 
+``bool``                  can be converted to a boolean value
+``int``                   can be converted to an integer value
+``float``                 can be converted to a floating point value
+``yesno``                 matches one of ``yes``, ``y``, ``no``, ``n`` with any
+                          case plus True and False
+:samp:`re({regexp})`      matches the regular expression `regexp`
+``path``                  is a valid path name that exists
+``path(empty)``           is a valid path name that is empty
+``path(nonempty)``        is a valid path name that is not empty
+:samp:`path({pathspec})`  is a valid path name that contains files that conform
+                          to `pathspec`
+                    
+                          `pathspec` is of the form :samp:`[+-]{glob}` where the
+                          leading ``+`` indicates that the path must include a
+                          file that matches the glob and ``-`` indicates that it
+                          must not include files that match the glob. Multiple
+                          pathspecs can be specified separated by commas.
+                  
+:samp:`date({datespec})`  is a valid date that matches the *datespec* where
+                          *datespec* follows the standard Python
+                          :meth:`~datetime.datetime.strptime`
+                          format string. 
+:samp:`time({timespec})`  is a valid time that matches the *timespec* where
+                          *timespec* follows the standard Python
+                          :meth:`~datetime.datetime.strptime`
+                          format string. 
+========================  ======================================================
 """
 
 import re
@@ -311,4 +326,3 @@ class _Registry():
         return None
 
 Validators = _Registry()
-
