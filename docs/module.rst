@@ -27,6 +27,8 @@ Asker
 ama.terminal
 ------------
 
+.. automodule:: ama.terminal
+
 TerminalAsker
 ~~~~~~~~~~~~~
 
@@ -36,6 +38,8 @@ TerminalAsker
 
 ama.tk
 ------
+
+.. automodule:: ama.tk
 
 TkAsker
 ~~~~~~~
@@ -54,9 +58,8 @@ TkQuestion
 ama.validator
 -------------
 
-.. data:: ama.validator.Validators
-
-   The dictionary of validator functions
+Validators
+~~~~~~~~~~
 
 .. automodule:: ama.validator
    
