@@ -117,7 +117,11 @@ class Asker(object):
             if tv is None and cv is None:
                 return value
             else:
-                v1 = tv(value)
+                if tv is not None:
+                    v1 = tv(value)
+                else:
+                    v1 = value
+                    
                 if cv is not None:
                     return cv(v1)
                 else:
