@@ -46,6 +46,9 @@ except:
 
 __all__ = ['Validators']
 
+DEFAULT_TIME_FORMAT = '%H:%M'
+DEFAULT_DATE_FORMAT = '%Y-%m-%d'
+
 def validate_str(value):
     return str(value)
 
@@ -175,34 +178,63 @@ def validate_nonempty(value):
         raise ValueError("Please enter something in this field.")
     return value
 
-def validate_date(value):
-    if value is None or value == '':
-        return ''
+def validate_date(format=DEFAULT_DATE_FORMAT):
+    if format == '':
+        format = DEFAULT_DATE_FORMAT
     
-    if isinstance(value, datetime):
-        return value.date()
-    elif isinstance(value, date):
-        return value
-    else:
+    def validate(value):
+        if value is None or value == '':
+            return ''
+        
+        if isinstance(value, datetime):
+            return value.date()
+        
+        if isinstance(value, date):
+            return value
+        
         try:
             d = datetime.strptime(value, '%Y-%m-%d')
             return d.date()
         except:
-            raise ValueError('Please enter a valid date in YYYY-MM-DD format.')
+            f = format
+            format_conv = {'%Y': 'YYYY', '%y': 'YY', '%m': 'MM', '%d': 'DD'}
+            for k, v in format_conv.items(): 
+                f = f.replace(k, v)
+            raise ValueError('Please enter a valid date in %s format.' % f)
+        
+    return validate
 
-def validate_time(value):
-    if value is None or value == '':
-        return ''
-    
-    if isinstance(value, time):
-        return value
-    else:
+def validate_time(format=DEFAULT_TIME_FORMAT):
+    if format == '':
+        format = DEFAULT_TIME_FORMAT
+        
+    def validate(value):
+        if value is None or value == '':
+            return ''
+        
+        if isinstance(value, time):
+            return value
+
         try:
-            d = datetime.strptime(value, '%H:%M:%S')
+            d = datetime.strptime(value, format)
             return d.time()
         except:
-            raise ValueError('Please enter a valid time in HH-MM-SS format.')
+            f = format
+            format_conv = {'%H': 'hh', '%M': 'mm', '%S': 'ss'}
+            for k, v in format_conv.items(): 
+                f = f.replace(k, v)
+            raise ValueError('Please enter a valid time in %s format.' % f)
+        
+    return validate
 
+
+def extract_spec(key):
+    start = key.find('(')
+    if start != -1 and key[-1] == ')':
+        return key[start+1:-1]
+    else:
+        return ''
+    
 
 class _Registry():
     def __init__(self):
@@ -218,8 +250,8 @@ class _Registry():
             'path(nonempty)': validate_path_nonempty,
             # 'path(pathspec)'
             'nonempty': validate_nonempty,
-            'date': validate_date,
-            'time': validate_time,
+            # 'date(datespec)': validate_date,
+            # 'time(timespec)': validate_time,
         }
         
         self._entry_point_re = re.compile('\w+(\.\w)?\:\w+(\.\w)?')
@@ -231,13 +263,46 @@ class _Registry():
         if key in self._validators:
             return self._validators[key]
         
-        if key.startswith('re(') and key.endswith(')'):
-            return validate_regex(key[3:-1])
+        if key.startswith('re'):
+            spec = extract_spec(key)
+            if spec != '':
+                regex = key[3:-1]
+                func = validate_regex(regex)
+            else:
+                func = lambda value: str(value)
+            self._validators[key] = func
+            return func
         
-        if key.startswith('path(') and key.endswith(')'):
-            filespec = key[5:-1]
-            return validate_path_with_spec(filespec)
+        elif key.startswith('path'):
+            spec = extract_spec(key)
+            if spec != '':
+                spec = key[5:-1]
+                func = validate_path_with_spec(spec)
+            else:
+                func = validate_path
+            self._validators[key] = func
+            return func
         
+        elif key.startswith('date'):
+            spec = extract_spec(key)
+            if spec != '':
+                spec = key[5:-1]
+                func = validate_date(spec)
+            else:
+                func = validate_date()
+            self._validators[key] = func
+            return func
+        
+        elif key.startswith('time'):
+            spec = extract_spec(key)
+            if spec != '':
+                spec = key[5:-1]
+                func = validate_time(spec)
+            else:
+                func = validate_time()
+            self._validators[key] = func
+            return func
+    
         ep_match = self._entry_point_re.match(key)
         if ep_match is not None:
             func = load_entry_point(key)
