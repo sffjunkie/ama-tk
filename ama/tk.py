@@ -82,7 +82,6 @@ class TkAsker(Asker):
         self.content.columnconfigure(0, weight=0)
         self.content.columnconfigure(1, weight=1)
         self.content.columnconfigure(2, weight=0)
-        self.content.columnconfigure(3, weight=0)
         
         self._root.columnconfigure(0, weight=1)
         self._root.rowconfigure(0, weight=0)
