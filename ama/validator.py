@@ -46,7 +46,7 @@ except:
 
 __all__ = ['Validators']
 
-DEFAULT_TIME_FORMAT = '%H:%M'
+DEFAULT_TIME_FORMAT = '%H:%M:%S'
 DEFAULT_DATE_FORMAT = '%Y-%m-%d'
 
 def validate_str(value):
