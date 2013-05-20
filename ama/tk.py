@@ -79,8 +79,6 @@ class TkAsker(Asker):
         
         self.content = ttk.Frame(self._root, padding=(3,3,3,3))
         self.content.grid(column=0, row=1, sticky=(tk.N, tk.S, tk.E, tk.W))
-        self.content.columnconfigure(0, weight=1)
-
         self.content.columnconfigure(0, weight=0)
         self.content.columnconfigure(1, weight=1)
         self.content.columnconfigure(2, weight=0)
