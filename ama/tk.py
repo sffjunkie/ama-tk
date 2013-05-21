@@ -14,6 +14,7 @@
 
 import sys
 import os.path
+from datetime import date, datetime
 from collections import OrderedDict
 
 try:
@@ -38,6 +39,8 @@ except ImportError:
 
 from ama import Asker, u
 from ama.tk_tooltip import ToolTip
+from ama.tk_date import DateEntry
+from ama.tk_time import TimeEntry
 
 class TkAsker(Asker):
     """Displays a Tk window containing the questins to be asked.
@@ -71,8 +74,7 @@ class TkAsker(Asker):
         self._unedited_entry = ttk.Style()
         self._unedited_entry.configure('unedited.TEntry', foreground='#666')
 
-        header_font = font.Font(family='TkDefaultFont')
-        header_font.configure(weight='bold')
+        header_font = font.Font(family='TkDefaultFont', weight='bold')
         header = ttk.Label(self._root, text=self._preamble, padding=3,
                            font=header_font, wraplength=420)
         header.grid(column=0, row=0, sticky=(tk.N, tk.EW))
@@ -215,6 +217,8 @@ class TkQuestion(object):
             
         self._validate = asker.validator(self._type, self._validator)
 
+        self._dont_update = ['date', 'time']
+
         self._var = None
         self._asker = asker
         self._row = row
@@ -227,9 +231,10 @@ class TkQuestion(object):
         self.label.grid(column=0, row=self._row, sticky=(tk.N, tk.S, tk.W),
                         padx=(0,5))
         
-        error_font = font.Font(family='TkFixedFont', size=10, weight='bold')
-        self.info_label = ttk.Label(asker.content, font=error_font, width=2,
-                                    anchor=tk.CENTER)
+        s = ttk.Style()
+        s.configure('error.TLabel', font='TkFixedFont 10 bold')
+        self.info_label = ttk.Label(asker.content, width=2,
+                                    anchor=tk.CENTER, style='error.TLabel')
         self.info_label.grid(column=2, row=self._row, padx=(3,0))
         self._help_text = question.help_text
         if self._help_text != '':
@@ -243,18 +248,19 @@ class TkQuestion(object):
 
         if self._validator and self._validator.startswith('path'):
             self._var = tk.StringVar()
-            frame = ttk.Frame(asker.content)
-            self._entry = ttk.Entry(frame, textvariable=self._var,
-                                   validate='all',
-                                   validatecommand=self._validate_entry)
-            self._entry.grid(column=0, row=0, sticky=tk.EW)
-            btn = ttk.Button(frame, text='Browse...',
-                             command=self._browse_for_directory)
-            btn.grid(column=1, row=0, sticky=tk.E)
-            frame.columnconfigure(0, weight=1)
-            frame.columnconfigure(1, weight=0)
+            frame = self._create_entry_with_button(asker.content,
+                'Browse...',
+                self._browse_for_directory)
 
             self.update(current_answers)
+            
+        elif self._validator and self._validator.startswith('date'):
+            frame = DateEntry(asker)
+            self._var = frame
+            
+        elif self._validator and self._validator.startswith('time'):
+            frame = TimeEntry(asker)
+            self._var = frame
             
         elif self._type == 'str':
             self._var = tk.StringVar()
@@ -329,9 +335,15 @@ class TkQuestion(object):
         
     def update(self, current_answers):
         """Update our unedited value with the other answers."""
-        
-        updated_answer = str(self._default).format(**current_answers)
-        self.value = updated_answer
+        if self._validator is None:
+            do_update = True
+        else:
+            name = self._validator.split('(')[0]
+            do_update =  name not in self._dont_update
+            
+        if do_update:
+            updated_answer = str(self._default).format(**current_answers)
+            self.value = updated_answer
         
     def value():
         def fget(self):
@@ -410,6 +422,23 @@ class TkQuestion(object):
             self._asker.update_answers((self._key, P))
 
         return rtn
+
+    def _create_entry_with_button(self, master, text, command):
+        frame = ttk.Frame(master)
+        
+        self._entry = ttk.Entry(frame, textvariable=self._var, 
+            validate='all', 
+            validatecommand=self._validate_entry)
+        self._entry.grid(column=0, row=0, sticky=tk.EW)
+        
+        btn = ttk.Button(frame, text=text, 
+            command=command)
+        btn.grid(column=1, row=0, sticky=tk.E)
+        
+        frame.columnconfigure(0, weight=1)
+        frame.columnconfigure(1, weight=0)
+        
+        return frame
     
     def _browse_for_directory(self, *args):
         path_entry = self.value
