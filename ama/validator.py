@@ -179,9 +179,6 @@ def validate_nonempty(value):
     return value
 
 def validate_date(format=DEFAULT_DATE_FORMAT):
-    if format == '':
-        format = DEFAULT_DATE_FORMAT
-    
     def validate(value):
         if value is None or value == '':
             return ''
@@ -205,9 +202,6 @@ def validate_date(format=DEFAULT_DATE_FORMAT):
     return validate
 
 def validate_time(format=DEFAULT_TIME_FORMAT):
-    if format == '':
-        format = DEFAULT_TIME_FORMAT
-        
     def validate(value):
         if value is None or value == '':
             return ''
