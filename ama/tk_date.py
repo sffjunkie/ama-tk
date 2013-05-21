@@ -32,6 +32,103 @@ try:
 except ImportError:
     import ttk
 
+from ama.validator import DEFAULT_DATE_FORMAT
+
+
+class DateEntry(ttk.Frame):
+    def __init__(self, asker, date_format=DEFAULT_DATE_FORMAT, start_date=None):
+        self._asker = asker
+        ttk.Frame.__init__(self, self._asker.content)
+        
+        self.format = date_format
+        if date_format.find('-') != -1:
+            separator = '-'
+        elif date_format.find('/') != -1:
+            separator = '/'
+        else:
+            raise ValueError('Invalid date date_format %s specified' % date_format)
+
+        elems = date_format.split(separator)
+            
+        self._calendar = calendar.TextCalendar()
+    
+        year_col = -1
+        month_col = -1
+        day_col = -1
+        for pos, elem in enumerate(elems):
+            if elem == '%Y':
+                year_col = pos
+            elif elem == '%y':
+                year_col = pos
+            elif elem == '%m':
+                month_col = pos
+            elif elem == '%d':
+                day_col = pos
+    
+        if start_date is None:
+            d = datetime.date.today()
+        else:
+            d = start_date
+    
+        self._year_value = tk.IntVar()
+        self._year_value.set(d.year)
+        self._year_entry = ttk.Entry(self, textvariable=self._year_value, width=4)
+        self._year_entry.grid(row=0, column=year_col*2)
+
+        self._month_value = tk.IntVar()
+        self._month_value.set(d.month)
+        self._month_entry = ttk.Entry(self, textvariable=self._month_value, width=2)
+        self._month_entry.grid(row=0, column=month_col*2)
+
+        self._day_value = tk.IntVar()
+        self._day_value.set(d.day)
+        self._day_entry = ttk.Entry(self, textvariable=self._day_value, width=2)
+        self._day_entry.grid(row=0, column=day_col*2)
+        
+        lbl = ttk.Label(self, text=separator, width=1)
+        lbl.grid(row=0, column=1)
+        
+        lbl = ttk.Label(self, text=separator, width=1)
+        lbl.grid(row=0, column=3)
+        
+        btn = ttk.Button(self, text='Select...', command=self._select_date)
+        btn.grid(row=0, column=5, sticky=tk.E)
+        
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=0)
+        self.columnconfigure(2, weight=0)
+        self.columnconfigure(3, weight=0)
+        self.columnconfigure(4, weight=0)
+        self.columnconfigure(5, weight=1)
+
+    def get(self):
+        d = datetime.datetime(year=self._year_value.get(),
+                              month=self._month_value.get(),
+                              day=self._day_value.get())
+        value = d.strftime(self.format)
+        return value
+    
+    def set(self, value):
+        value = str(value)
+        d = datetime.datetime.strptime(value, self.format)
+        self._year_value.set(d.year)
+        self._month_value.set(d.month)
+        self._day_value.set(d.day)
+
+    def _select_date(self):
+        d = datetime.date(year=self._year_value.get(),
+                          month=self._month_value.get(),
+                          day=self._day_value.get())
+        
+        dlg = DateDialog(self._asker._root, 'Select a Date...', start_date=d)
+        self._asker._root.wait_window(dlg._top)
+        new_date = dlg.date
+        if new_date != None:
+            self._year_value.set(new_date.year)
+            self._month_value.set(new_date.month)
+            self._day_value.set(new_date.day)
+
+
 
 class DateDialog(object):
     def __init__(self, master, title, start_date=None, font_size=-1):
@@ -80,6 +177,7 @@ class DateDialog(object):
         self._top.grab_release()
         self._top.destroy()
 
+
 class DateSelector(ttk.Frame):
     FILL_COLOR_HEADER = '#ccc'
     FILL_COLOR_ACTIVE = '#96c8c8'
@@ -92,6 +190,11 @@ class DateSelector(ttk.Frame):
         self._master = master
         ttk.Frame.__init__(self, master)
         
+        if start_date is None:
+            self._date = datetime.date.today()
+        else:
+            self._date = start_date
+        
         self._font_size = font_size
         
         self._txt_tag = ''
@@ -99,8 +202,10 @@ class DateSelector(ttk.Frame):
             
         self._calendar = calendar.TextCalendar()
         
-        self._style = ttk.Style()
-        self._style.configure('month.TLabel', anchor='center')
+        s = ttk.Style()
+        s.configure('month.TLabel', font='TkDefaultFont', anchor='center')
+        if self._font_size != -1:
+            s.configure('month.TLabel', size = self._font_size)
         
         self._header = ttk.Frame(self, padding=(3,0))
         self._header.grid(row=0, column=0)
@@ -109,13 +214,10 @@ class DateSelector(ttk.Frame):
                                     command=self._prev_month)
         self._prev_btn.grid(row=0, column=0, sticky=tk.E)
         
-        month_font = font.Font(family='TkDefaultFont', weight='bold')
-        if self._font_size != -1:
-            month_font['size'] = self._font_size
+        month_font = font.Font()
         
         self._month_year_lbl = ttk.Label(self._header, text='January',
-                                         width=16, style='month.TLabel',
-                                         font=month_font)
+                                         width=16, style='month.TLabel')
         self._month_year_lbl.grid(row=0, column=1, padx=5)
         
         self._next_btn = ttk.Button(self._header, text='>', width=2,
@@ -131,11 +233,6 @@ class DateSelector(ttk.Frame):
         self._canvas = tk.Canvas(self)
         self._canvas.grid(row=1, column=0, columnspan=3)
         self._create()
-        
-        if start_date is None:
-            self._date = datetime.date.today()
-        else:
-            self._date = start_date
 
         self._update()
         self._fill_date_rect()
@@ -177,15 +274,13 @@ class DateSelector(ttk.Frame):
     def _create(self):
         week_days = self._calendar.formatweekheader(3).split(' ')
         
-        day_font = font.Font(family='TkFixedFont')
-        if self._font_size != -1:
-            day_font['size'] = self._font_size
+        day_font = font.Font(family='TkDefaultFont')
             
-        item_width = max(day_font.measure(day) for day in week_days)
-        x_stride = item_width * 1.25
+        item_width = max(day_font.measure(day) for day in week_days) + 1
+        x_stride = item_width * 1.1
 
         item_height = day_font.metrics('linespace') + 3
-        y_stride = item_height + 3
+        y_stride = item_height + 2
         
         half_width = int(item_width/2)
         half_height = int(item_height/2)
@@ -203,7 +298,7 @@ class DateSelector(ttk.Frame):
             outline='')
         
         for day in week_days:
-            self._canvas.create_text((x_pos, y_pos), text=day, font=day_font)
+            self._canvas.create_text((x_pos, y_pos), text=day, font='TkDefaultFont')
             x_pos = x_pos + x_stride
             
         y_pos += y_stride
@@ -250,7 +345,7 @@ class DateSelector(ttk.Frame):
                 text_tag = 'txt%d:%d' % (week_number,day_number)
                 text_id = self._canvas.create_text((x_pos, y_pos-1), text='',
                                               tags=[day_tag, text_tag],
-                                              font=day_font)
+                                              font='TkDefaultFont')
                 
                 self._canvas.tag_bind(day_tag, '<Button-1>', _clicked)
 
@@ -304,4 +399,3 @@ class DateSelector(ttk.Frame):
                                 fill=self.FILL_COLOR_SELECT)
         
         self._rct_tag = rct_tag
-         

@@ -14,7 +14,7 @@
 
 import sys
 import os.path
-from datetime import date
+from datetime import date, datetime
 from collections import OrderedDict
 
 try:
@@ -39,7 +39,8 @@ except ImportError:
 
 from ama import Asker, u
 from ama.tk_tooltip import ToolTip
-from ama.tk_date import DateDialog
+from ama.tk_date import DateEntry
+from ama.tk_time import TimeEntry
 
 class TkAsker(Asker):
     """Displays a Tk window containing the questins to be asked.
@@ -233,9 +234,10 @@ class TkQuestion(object):
         self.label.grid(column=0, row=self._row, sticky=(tk.N, tk.S, tk.W),
                         padx=(0,5))
         
-        error_font = font.Font(family='TkFixedFont', size=10, weight='bold')
-        self.info_label = ttk.Label(asker.content, font=error_font, width=2,
-                                    anchor=tk.CENTER)
+        s = ttk.Style()
+        s.configure('error.TLabel', font='TkFixedFont 10 bold')
+        self.info_label = ttk.Label(asker.content, width=2,
+                                    anchor=tk.CENTER, style='error.TLabel')
         self.info_label.grid(column=2, row=self._row, padx=(3,0))
         self._help_text = question.help_text
         if self._help_text != '':
@@ -248,6 +250,7 @@ class TkQuestion(object):
         current_answers = self._asker.current_answers()
 
         if self._validator and self._validator.startswith('path'):
+            self._var = tk.StringVar()
             frame = self._create_entry_with_button(asker.content,
                 'Browse...',
                 self._browse_for_directory)
@@ -255,14 +258,12 @@ class TkQuestion(object):
             self.update(current_answers)
             
         elif self._validator and self._validator.startswith('date'):
-            frame = self._create_entry_with_button(asker.content,
-                'Select...',
-                self._select_date)
+            frame = DateEntry(asker)
+            self._var = frame
             
-            if self._default is None:
-                self.value = ''
-            else:
-                self.value = self._default
+        elif self._validator and self._validator.startswith('time'):
+            frame = TimeEntry(asker)
+            self._var = frame
             
         elif self._type == 'str':
             self._var = tk.StringVar()
@@ -426,7 +427,6 @@ class TkQuestion(object):
         return rtn
 
     def _create_entry_with_button(self, master, text, command):
-        self._var = tk.StringVar()
         frame = ttk.Frame(master)
         
         self._entry = ttk.Entry(frame, textvariable=self._var, 
@@ -464,16 +464,3 @@ class TkQuestion(object):
             
         self.value = new_path
         self._asker.update_answers((self._key, new_path))
-
-    def _select_date(self):
-        if self.value == '':
-            start_date = date.today()
-        else:
-            start_date = self.value
-            
-        dlg = DateDialog(self._asker._root, 'Select a Date...', start_date)
-        self._asker._root.wait_window(dlg._top)
-        new_date = dlg.date
-        if new_date != None:
-            self.value = new_date
-    
