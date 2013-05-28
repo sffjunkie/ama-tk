@@ -147,6 +147,14 @@ def test_extract_spec():
     assert extract_spec('re()') == ''
     assert extract_spec('re([0-9]?)') == '[0-9]?'
     
+def test_validate_color():
+    v1 = Validators['color(hex)']
+    assert v1('#abc') == (170, 187, 204)
+    assert v1('#aabbcc') == (170, 187, 204)
+    
+    v2 = Validators['color(rgb)']
+    assert v2('rgb(170, 187, 204)') == (170, 187, 204)
+    
 
 if __name__ == '__main__':
     test_validate_str()
@@ -168,4 +176,5 @@ if __name__ == '__main__':
     test_validate_path_contains_and_does_not_contain_fail()
     test_date()
     test_extract_spec()
+    test_validate_color()
     
