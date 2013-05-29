@@ -39,6 +39,8 @@ except ImportError:
 
 from ama import Asker, u
 from ama.tk_tooltip import ToolTip
+from ama.tk_date import DateEntry
+from ama.tk_time import TimeEntry
 
 class TkAsker(Asker):
     """Displays a Tk window containing the questins to be asked.
@@ -252,6 +254,14 @@ class TkQuestion(object):
 
             self.update(current_answers)
             
+        elif self._validator and self._validator.startswith('date'):
+            frame = DateEntry(asker)
+            self._var = frame
+            
+        elif self._validator and self._validator.startswith('time'):
+            frame = TimeEntry(asker)
+            self._var = frame
+            
         elif self._type == 'str':
             self._var = tk.StringVar()
             self._entry = ttk.Entry(asker.content, textvariable=self._var,
@@ -280,13 +290,13 @@ class TkQuestion(object):
 
             self.update(current_answers)
             
-        elif self._type == 'bool' or self._type == 'yesno' or \
+        elif self._type == 'bool' or self._validator == 'yesno' or \
             isinstance(self._type, bool):
             self._var = tk.BooleanVar()
             self.value = self._default
             frame = ttk.Frame(asker.content)
             
-            if self._type == 'yesno':
+            if self._validator == 'yesno':
                 text = ('Yes', 'No')
             else:
                 text = ('True', 'False')
