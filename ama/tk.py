@@ -280,13 +280,13 @@ class TkQuestion(object):
 
             self.update(current_answers)
             
-        elif self._type == 'bool' or self._validator == 'yesno' or \
+        elif self._type == 'bool' or self._type == 'yesno' or \
             isinstance(self._type, bool):
             self._var = tk.BooleanVar()
             self.value = self._default
             frame = ttk.Frame(asker.content)
             
-            if self._validator == 'yesno':
+            if self._type == 'yesno':
                 text = ('Yes', 'No')
             else:
                 text = ('True', 'False')
