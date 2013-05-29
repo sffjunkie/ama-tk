@@ -39,8 +39,6 @@ except ImportError:
 
 from ama import Asker, u
 from ama.tk_tooltip import ToolTip
-from ama.tk_date import DateEntry
-from ama.tk_time import TimeEntry
 
 class TkAsker(Asker):
     """Displays a Tk window containing the questins to be asked.
@@ -253,14 +251,6 @@ class TkQuestion(object):
                 self._browse_for_directory)
 
             self.update(current_answers)
-            
-        elif self._validator and self._validator.startswith('date'):
-            frame = DateEntry(asker)
-            self._var = frame
-            
-        elif self._validator and self._validator.startswith('time'):
-            frame = TimeEntry(asker)
-            self._var = frame
             
         elif self._type == 'str':
             self._var = tk.StringVar()
