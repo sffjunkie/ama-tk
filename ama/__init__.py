@@ -71,7 +71,7 @@ class Asker(object):
         if questions is None and self._questions is not None:
             questions = self._questions
             
-        if not isinstance(questions, dict):
+        if not isinstance(questions, OrderedDict):
             questions = json.loads(questions, object_pairs_hook=OrderedDict)
     
         if initial_answers is None:
@@ -94,6 +94,12 @@ class Asker(object):
                 self.add_question(key, q)
 
         result = self.go(initial_answers)
+        
+        if all_questions == False:
+            for key, value in initial_answers.items():
+                q = questions[key]
+                v = self.validator(q[1], q[4])
+                result['answers'][key] = v(value)
         return result
 
     def add_question(self):
