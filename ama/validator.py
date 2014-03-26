@@ -53,13 +53,14 @@ Validator Name            Tests that the value...
 ========================  ======================================================
 """
 
+import os
 import re
 import csv
+import sys
 import glob
+import tempfile
 from io import StringIO
-from os import path, listdir
 from datetime import datetime, date, time
-from itertools import izip
 
 try:
     from pkg_resources import load_entry_point
@@ -119,42 +120,58 @@ def validate_regex(regex):
     
     return validate
 
+def validate_could_be_path(value):
+    temp_path = tempfile.gettempdir()
+    
+    if 'win' in sys.platform and value[1] ==':':
+        value = value[2:]
+        
+    value = value.strip(os.sep)
+    
+    path_name = os.path.join(temp_path, value)
+    
+    try:
+        os.makedirs(path_name)
+        os.rmdir(path_name)
+    except:
+        raise ValueError('Please enter a valid path name')
+
 def validate_path(value):
-    is_dir = path.exists(value) and path.isdir(value)
+    is_dir = os.path.exists(value) and os.path.isdir(value)
     if not is_dir:
         raise ValueError('Please enter a valid path name.')
     return value
 
 def validate_path_empty(value):
-    is_dir = path.exists(value) and path.isdir(value)
+    is_dir = os.path.exists(value) and os.path.isdir(value)
     if not is_dir:
         raise ValueError(('Please enter a valid path name.'))
     
-    if len(listdir(value)) != 0:
+    if len(os.listdir(value)) != 0:
         raise ValueError(('Please enter a valid path name '
                                'for which the path is empty.'))
     return value
 
 def validate_path_nonempty(value):
-    is_dir = path.exists(value) and path.isdir(value)
+    is_dir = os.path.exists(value) and os.path.isdir(value)
     if not is_dir:
         raise ValueError(('Please enter a valid path name.'))
     
-    if len(listdir(value)) == 0:
+    if len(os.listdir(value)) == 0:
         raise ValueError(('Please enter a valid path name '
                           'for which the path is not empty.'))
     return value
 
 def path_includes_file(path, filespec):
-    fname = path.join(path, filespec)
-    return path.exists(fname)
+    fname = os.path.join(path, filespec)
+    return os.path.exists(fname)
 
 def path_does_not_include_file(path, filespec):
-    fname = path.join(path, filespec)
-    return not path.exists(fname)
+    fname = os.path.join(path, filespec)
+    return not os.path.exists(fname)
 
 def validate_path_with_spec(pathspec):
-    reader = csv.reader(StringIO(unicode(pathspec)))
+    reader = csv.reader(StringIO(pathspec))
     included = []
     not_included = []
     for row in reader:
@@ -167,12 +184,12 @@ def validate_path_with_spec(pathspec):
     def validate(value):
         not_found = []
         for spec in included:
-            if len(glob.glob(path.join(value, spec))) == 0:
+            if len(glob.glob(os.path.join(value, spec))) == 0:
                 not_found.append(spec)
         
         found = []
         for spec in not_included:
-            if len(glob.glob(path.join(value, spec))) != 0:
+            if len(glob.glob(os.path.join(value, spec))) != 0:
                 found.append(spec)
         
         found_count = len(found) 
@@ -267,7 +284,7 @@ def validate_color(colorspec):
                 def to_iterable():
                     args = [iter(value[1:])]*2
                     return tuple(map(lambda t: int('%s%s' % t, 16),
-                        izip(*args)))
+                        zip(*args)))
             elif len(value) == 4:
                 def to_iterable():
                     return tuple(map(lambda t: int('%s%s' % (t, t), 16),
