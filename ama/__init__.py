@@ -95,7 +95,7 @@ class Asker(object):
 
         result = self.go(initial_answers)
         
-        if all_questions == False:
+        if result['result'] == 'ok' and all_questions == False:
             for key, value in initial_answers.items():
                 q = questions[key]
                 v = self.validator(q[1], q[4])
