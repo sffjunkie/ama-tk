@@ -15,7 +15,6 @@
 import sys
 import datetime
 import calendar
-from dateutil.relativedelta import relativedelta
 
 try:
     import tkinter as tk
@@ -214,7 +213,7 @@ class DateSelector(ttk.Frame):
                                     command=self._prev_month)
         self._prev_btn.grid(row=0, column=0, sticky=tk.E)
         
-        month_font = font.Font()
+        #month_font = font.Font()
         
         self._month_year_lbl = ttk.Label(self._header, text='January',
                                          width=16, style='month.TLabel')
@@ -236,40 +235,29 @@ class DateSelector(ttk.Frame):
 
         self._update()
         self._fill_date_rect()
-        
-    def month():
-        def fget(self):
-            return self._date.month
-        
-        def fset(self, month):
-            self._date.month = month
-            self._update()
-            
-        return locals()
+
+    @property        
+    def month(self):
+        return self._date.month
+
+    @month.setter        
+    def month(self, month):
+        self._date.month = month
+        self._update()
     
-    month = property(**month())
-        
-    def year():
-        def fget(self):
-            return self._date.year
-        
-        def fset(self, year):
-            self._date.year = year
-            self._update()
-            
-        return locals()
-    
-    year = property(**year())
+    @property    
+    def year(self):
+        return self._date.year
+
+    @year.setter        
+    def year(self, year):
+        self._date.year = year
+        self._update()
     
     def set_year_and_month(self, year, month):
         self._year = year
         self._month = month
         self._update()
-    
-    def _update_month_year(self):
-        m = calendar.month_name[self._date.month]
-        y = str(self._date.year)
-        self._month_year_lbl['text'] = '%s, %s' % (m, y)
     
     def _create(self):
         week_days = self._calendar.formatweekheader(3).split(' ')
@@ -310,14 +298,14 @@ class DateSelector(ttk.Frame):
             for tag in tags:
                 if tag.startswith('day'):
                     break
-                
+
             txt_tag = 'txt%s' % tag[3:]
             rct_tag = 'rct%s' % tag[3:]
 
             prev_txt_tag = self._txt_tag
             prev_rct_tag = self._rct_tag
             
-            if prev_rct_tag != '':
+            if prev_rct_tag:
                 self._canvas.itemconfig(prev_rct_tag, fill='')
                 
             self._canvas.itemconfig(rct_tag,
@@ -334,7 +322,7 @@ class DateSelector(ttk.Frame):
             for day_number in range(7):
                 day_tag = 'day%d:%d' % (week_number,day_number)
                 rct_tag = 'rct%d:%d' % (week_number,day_number)
-                rect_id = self._canvas.create_rectangle(
+                self._canvas.create_rectangle(
                     (x_pos - half_width,
                     y_pos - half_height,
                     x_pos + half_width,
@@ -343,9 +331,9 @@ class DateSelector(ttk.Frame):
                     tags=[day_tag, rct_tag])
                 
                 text_tag = 'txt%d:%d' % (week_number,day_number)
-                text_id = self._canvas.create_text((x_pos, y_pos-1), text='',
-                                              tags=[day_tag, text_tag],
-                                              font='TkDefaultFont')
+                self._canvas.create_text((x_pos, y_pos-1), text='',
+                                          tags=[day_tag, text_tag],
+                                          font='TkDefaultFont')
                 
                 self._canvas.tag_bind(day_tag, '<Button-1>', _clicked)
 
@@ -357,11 +345,16 @@ class DateSelector(ttk.Frame):
     def _update(self):
         """Redraw the calendar"""
 
-        self._update_month_year()
+        m = calendar.month_name[self._date.month]
+        y = str(self._date.year)
+        self._month_year_lbl['text'] = '%s, %s' % (m, y)
         
         self._days = self._calendar.monthdatescalendar(self._date.year,
                                                        self._date.month)
-        
+
+        if self._rct_tag:
+            self._canvas.itemconfig(self._rct_tag, fill='')
+
         for week_number, days_in_week in enumerate(self._days):
             for day_number, date_ in enumerate(days_in_week):
                 tag = 'txt%d:%d' % (week_number, day_number)
@@ -374,28 +367,67 @@ class DateSelector(ttk.Frame):
                     self._canvas.itemconfigure(tag,
                                                text=text,
                                                fill=self.TEXT_COLOR_OTHER_MONTH)
-        
+
+                rct_tag = 'rct%s:%s' % (week_number, day_number)
+                
+                if self._rct_tag and rct_tag == self._rct_tag:
+                    self._canvas.itemconfig(self._rct_tag, fill='')
+
+                if self._date == date_:
+                    self._canvas.itemconfig(rct_tag, 
+                                            fill=self.FILL_COLOR_SELECT)
+                    new_rct_tag = rct_tag
+                    
+        self._rct_tag = new_rct_tag
+                
     def _next_month(self):
-        self._date += relativedelta(months=1)
+        self._date = next_month(self._date)
         self._update()
-        
+
     def _prev_month(self):
-        self._date -= relativedelta(months=1)
+        self._date = prev_month(self._date)
         self._update()
 
     def _get_date(self, week_number, day_number):
         return self._days[week_number][day_number]
-    
+
     def _find_date_position(self, d):
         for week_number, week in enumerate(self._days):
             for day_number, day in enumerate(week):
                 if day == d:
                     return (week_number, day_number)
-    
+
     def _fill_date_rect(self):
         rct_tag = 'rct%d:%d' % self._find_date_position(self._date)
-                
+
         self._canvas.itemconfig(rct_tag,
                                 fill=self.FILL_COLOR_SELECT)
-        
+
         self._rct_tag = rct_tag
+
+
+def next_month(d):
+    year = d.year
+    month = d.month + 1
+    if month > 12:
+        year += 1
+        month = 1
+    
+    try:
+        return d.__class__(year=year, month=month, day=d.day)
+    except ValueError:
+        return d.__class__(year=year, month=month, day=1) - datetime.timedelta(days=1)
+
+
+def prev_month(d):
+    year = d.year
+    month = d.month - 1
+    if month == 0:
+        year -= 1
+        month = 12
+    
+    try:
+        return d.__class__(year=year, month=month, day=d.day)
+    except ValueError:
+        return d.__class__(year=year, month=month + 1, day=1) - datetime.timedelta(days=1)
+    
