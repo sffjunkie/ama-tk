@@ -224,8 +224,6 @@ class DateSelector(ttk.Frame):
                                     command=self._prev_month)
         self._prev_btn.grid(row=0, column=0, sticky=tk.E)
         
-        #month_font = font.Font()
-        
         self._month_year_lbl = ttk.Label(self._header, text='January',
                                          width=16, style='month.TLabel')
         self._month_year_lbl.grid(row=0, column=1, padx=5)
