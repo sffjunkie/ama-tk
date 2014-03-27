@@ -196,7 +196,6 @@ class DateSelector(ttk.Frame):
         
         self._font_size = font_size
         
-        self._txt_tag = ''
         self._rct_tag = ''
             
         self._calendar = calendar.TextCalendar()
@@ -302,7 +301,6 @@ class DateSelector(ttk.Frame):
             txt_tag = 'txt%s' % tag[3:]
             rct_tag = 'rct%s' % tag[3:]
 
-            prev_txt_tag = self._txt_tag
             prev_rct_tag = self._rct_tag
             
             if prev_rct_tag:
@@ -314,7 +312,6 @@ class DateSelector(ttk.Frame):
             week_number, day_number = map(int, txt_tag[3:].split(':'))        
             self.date = self._get_date(week_number, day_number)
 
-            self._txt_tag = txt_tag
             self._rct_tag = rct_tag
         
         for week_number in range(5):
