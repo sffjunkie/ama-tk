@@ -167,7 +167,7 @@ class DateDialog(object):
         self._top.grab_set()
 
     def _ok(self, event=None):
-        self.date = self._selector._date
+        self.date = self._selector.date
         self._top.grab_release()
         self._top.destroy()
     
@@ -190,9 +190,9 @@ class DateSelector(ttk.Frame):
         ttk.Frame.__init__(self, master)
         
         if start_date is None:
-            self._date = datetime.date.today()
+            self.date = datetime.date.today()
         else:
-            self._date = start_date
+            self.date = start_date
         
         self._font_size = font_size
         
@@ -238,20 +238,20 @@ class DateSelector(ttk.Frame):
 
     @property        
     def month(self):
-        return self._date.month
+        return self.date.month
 
     @month.setter        
     def month(self, month):
-        self._date.month = month
+        self.date.month = month
         self._update()
     
     @property    
     def year(self):
-        return self._date.year
+        return self.date.year
 
     @year.setter        
     def year(self, year):
-        self._date.year = year
+        self.date.year = year
         self._update()
     
     def set_year_and_month(self, year, month):
@@ -312,7 +312,7 @@ class DateSelector(ttk.Frame):
                                     fill=self.FILL_COLOR_SELECT)
 
             week_number, day_number = map(int, txt_tag[3:].split(':'))        
-            self._date = self._get_date(week_number, day_number)
+            self.date = self._get_date(week_number, day_number)
 
             self._txt_tag = txt_tag
             self._rct_tag = rct_tag
@@ -345,12 +345,12 @@ class DateSelector(ttk.Frame):
     def _update(self):
         """Redraw the calendar"""
 
-        m = calendar.month_name[self._date.month]
-        y = str(self._date.year)
+        m = calendar.month_name[self.date.month]
+        y = str(self.date.year)
         self._month_year_lbl['text'] = '%s, %s' % (m, y)
         
-        self._days = self._calendar.monthdatescalendar(self._date.year,
-                                                       self._date.month)
+        self._days = self._calendar.monthdatescalendar(self.date.year,
+                                                       self.date.month)
 
         if self._rct_tag:
             self._canvas.itemconfig(self._rct_tag, fill='')
@@ -359,7 +359,7 @@ class DateSelector(ttk.Frame):
             for day_number, date_ in enumerate(days_in_week):
                 tag = 'txt%d:%d' % (week_number, day_number)
                 text = str(date_.day)
-                if self._date.month == date_.month:
+                if self.date.month == date_.month:
                     self._canvas.itemconfigure(tag,
                                                text=text,
                                                fill='black')
@@ -373,7 +373,7 @@ class DateSelector(ttk.Frame):
                 if self._rct_tag and rct_tag == self._rct_tag:
                     self._canvas.itemconfig(self._rct_tag, fill='')
 
-                if self._date == date_:
+                if self.date == date_:
                     self._canvas.itemconfig(rct_tag, 
                                             fill=self.FILL_COLOR_SELECT)
                     new_rct_tag = rct_tag
@@ -381,11 +381,11 @@ class DateSelector(ttk.Frame):
         self._rct_tag = new_rct_tag
                 
     def _next_month(self):
-        self._date = next_month(self._date)
+        self.date = next_month(self.date)
         self._update()
 
     def _prev_month(self):
-        self._date = prev_month(self._date)
+        self.date = prev_month(self.date)
         self._update()
 
     def _get_date(self, week_number, day_number):
@@ -398,7 +398,7 @@ class DateSelector(ttk.Frame):
                     return (week_number, day_number)
 
     def _fill_date_rect(self):
-        rct_tag = 'rct%d:%d' % self._find_date_position(self._date)
+        rct_tag = 'rct%d:%d' % self._find_date_position(self.date)
 
         self._canvas.itemconfig(rct_tag,
                                 fill=self.FILL_COLOR_SELECT)
