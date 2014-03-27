@@ -35,7 +35,8 @@ from ama.validator import DEFAULT_DATE_FORMAT
 
 
 class DateEntry(ttk.Frame):
-    def __init__(self, asker, date_format=DEFAULT_DATE_FORMAT, start_date=None):
+    def __init__(self, asker, date_format=DEFAULT_DATE_FORMAT,
+                 start_date=None):
         self._asker = asker
         ttk.Frame.__init__(self, self._asker.content)
         
@@ -45,7 +46,8 @@ class DateEntry(ttk.Frame):
         elif date_format.find('/') != -1:
             separator = '/'
         else:
-            raise ValueError('Invalid date date_format %s specified' % date_format)
+            raise ValueError('Invalid date date_format %s specified' % \
+                             date_format)
 
         elems = date_format.split(separator)
             
@@ -71,17 +73,20 @@ class DateEntry(ttk.Frame):
     
         self._year_value = tk.IntVar()
         self._year_value.set(d.year)
-        self._year_entry = ttk.Entry(self, textvariable=self._year_value, width=4)
+        self._year_entry = ttk.Entry(self, textvariable=self._year_value,
+                                     width=4)
         self._year_entry.grid(row=0, column=year_col*2)
 
         self._month_value = tk.IntVar()
         self._month_value.set(d.month)
-        self._month_entry = ttk.Entry(self, textvariable=self._month_value, width=2)
+        self._month_entry = ttk.Entry(self, textvariable=self._month_value,
+                                      width=2)
         self._month_entry.grid(row=0, column=month_col*2)
 
         self._day_value = tk.IntVar()
         self._day_value.set(d.day)
-        self._day_entry = ttk.Entry(self, textvariable=self._day_value, width=2)
+        self._day_entry = ttk.Entry(self, textvariable=self._day_value,
+                                    width=2)
         self._day_entry.grid(row=0, column=day_col*2)
         
         lbl = ttk.Label(self, text=separator, width=1)
@@ -285,7 +290,8 @@ class DateSelector(ttk.Frame):
             outline='')
         
         for day in week_days:
-            self._canvas.create_text((x_pos, y_pos), text=day, font='TkDefaultFont')
+            self._canvas.create_text((x_pos, y_pos), text=day,
+                                     font='TkDefaultFont')
             x_pos = x_pos + x_stride
             
         y_pos += y_stride
@@ -413,7 +419,8 @@ def next_month(d):
     try:
         return d.__class__(year=year, month=month, day=d.day)
     except ValueError:
-        return d.__class__(year=year, month=month, day=1) - datetime.timedelta(days=1)
+        return d.__class__(year=year, month=month, day=1) - \
+            datetime.timedelta(days=1)
 
 
 def prev_month(d):
@@ -426,5 +433,6 @@ def prev_month(d):
     try:
         return d.__class__(year=year, month=month, day=d.day)
     except ValueError:
-        return d.__class__(year=year, month=month + 1, day=1) - datetime.timedelta(days=1)
+        return d.__class__(year=year, month=month + 1, day=1) - \
+            datetime.timedelta(days=1)
     
