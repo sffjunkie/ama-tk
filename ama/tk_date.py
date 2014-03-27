@@ -35,6 +35,10 @@ from ama.validator import DEFAULT_DATE_FORMAT
 
 
 class DateEntry(ttk.Frame):
+    """A date entry widget containing text entry boxes for year, month and day
+    and a button to display a date selection dialog
+    """
+    
     def __init__(self, asker, date_format=DEFAULT_DATE_FORMAT,
                  start_date=None):
         self._asker = asker
@@ -133,8 +137,9 @@ class DateEntry(ttk.Frame):
             self._day_value.set(new_date.day)
 
 
-
 class DateDialog(object):
+    """Display a dialog to obtain a date from the user"""
+    
     def __init__(self, master, title, start_date=None, font_size=-1):
         self._master = master
         self._top = tk.Toplevel(self._master)
@@ -183,14 +188,16 @@ class DateDialog(object):
 
 
 class DateSelector(ttk.Frame):
+    """A date selector widget which displays dates as a calendar, one
+    month at a time.
+    """
+        
     FILL_COLOR_HEADER = '#ccc'
     FILL_COLOR_ACTIVE = '#96c8c8'
     FILL_COLOR_SELECT = '#82bdbd'
     TEXT_COLOR_OTHER_MONTH = '#888'
     
     def __init__(self, master, start_date=None, font_size=-1):
-        """Create a DateSelector widget"""
-        
         self._master = master
         ttk.Frame.__init__(self, master)
         
