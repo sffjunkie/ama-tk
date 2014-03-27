@@ -336,11 +336,11 @@ class DateSelector(ttk.Frame):
                     x_pos + half_width,
                     y_pos + half_height),
                     outline='',
-                    tags=[day_tag, rct_tag])
+                    tags=(day_tag, rct_tag))
                 
                 text_tag = 'txt%d:%d' % (week_number,day_number)
                 self._canvas.create_text((x_pos, y_pos-1), text='',
-                                          tags=[day_tag, text_tag],
+                                          tags=(day_tag, text_tag),
                                           font='TkDefaultFont')
                 
                 self._canvas.tag_bind(day_tag, '<Button-1>', _clicked)
