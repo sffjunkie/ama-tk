@@ -325,7 +325,7 @@ class DateSelector(ttk.Frame):
 
             self._rct_tag = rct_tag
         
-        for week_number in range(5):
+        for week_number in range(6):
             x_pos = x_start
             for day_number in range(7):
                 day_tag = 'day%d:%d' % (week_number,day_number)
