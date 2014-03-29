@@ -39,8 +39,8 @@ class DateEntry(ttk.Frame):
     and a button to display a date selection dialog
     """
     
-    def __init__(self, asker, date_format=DEFAULT_DATE_FORMAT,
-                 start_date=None):
+    def __init__(self, asker, start_date=None,
+                 date_format=DEFAULT_DATE_FORMAT):
         self._asker = asker
         ttk.Frame.__init__(self, self._asker.content)
         
@@ -50,7 +50,7 @@ class DateEntry(ttk.Frame):
         elif date_format.find('/') != -1:
             separator = '/'
         else:
-            raise ValueError('Invalid date date_format %s specified' % \
+            raise ValueError("Don't know to handle date format %s" % \
                              date_format)
 
         elems = date_format.split(separator)
@@ -75,21 +75,21 @@ class DateEntry(ttk.Frame):
         else:
             d = start_date
     
-        self._year_value = tk.IntVar()
-        self._year_value.set(d.year)
-        self._year_entry = ttk.Entry(self, textvariable=self._year_value,
+        self._year_var = tk.IntVar()
+        self._year_var.set(d.year)
+        self._year_entry = ttk.Entry(self, textvariable=self._year_var,
                                      width=4)
         self._year_entry.grid(row=0, column=year_col*2)
 
-        self._month_value = tk.IntVar()
-        self._month_value.set(d.month)
-        self._month_entry = ttk.Entry(self, textvariable=self._month_value,
+        self._month_var = tk.IntVar()
+        self._month_var.set('%02d' % d.month)
+        self._month_entry = ttk.Entry(self, textvariable=self._month_var,
                                       width=2)
         self._month_entry.grid(row=0, column=month_col*2)
 
-        self._day_value = tk.IntVar()
-        self._day_value.set(d.day)
-        self._day_entry = ttk.Entry(self, textvariable=self._day_value,
+        self._day_var = tk.IntVar()
+        self._day_var.set('%02d' % d.day)
+        self._day_entry = ttk.Entry(self, textvariable=self._day_var,
                                     width=2)
         self._day_entry.grid(row=0, column=day_col*2)
         
@@ -110,31 +110,29 @@ class DateEntry(ttk.Frame):
         self.columnconfigure(5, weight=1)
 
     def get(self):
-        d = datetime.datetime(year=self._year_value.get(),
-                              month=self._month_value.get(),
-                              day=self._day_value.get())
+        d = datetime.datetime(year=self._year_var.get(),
+                              month=self._month_var.get(),
+                              day=self._day_var.get())
         value = d.strftime(self.format)
         return value
     
     def set(self, value):
         value = str(value)
         d = datetime.datetime.strptime(value, self.format)
-        self._year_value.set(d.year)
-        self._month_value.set(d.month)
-        self._day_value.set(d.day)
+        self._year_var.set(d.year)
+        self._month_var.set('%02d' % d.month)
+        self._day_var.set('%02d' % d.day)
 
     def select_date(self):
-        d = datetime.date(year=self._year_value.get(),
-                          month=self._month_value.get(),
-                          day=self._day_value.get())
+        d = datetime.date(year=self._year_var.get(),
+                          month=self._month_var.get(),
+                          day=self._day_var.get())
         
         dlg = DateDialog(self._asker._root, 'Select a Date...', start_date=d)
         self._asker._root.wait_window(dlg)
         new_date = dlg.date
         if new_date != None:
-            self._year_value.set(new_date.year)
-            self._month_value.set(new_date.month)
-            self._day_value.set(new_date.day)
+            self.set(new_date)
 
 
 class DateDialog(tk.Toplevel):
@@ -192,7 +190,7 @@ class DateSelector(ttk.Frame):
     """
         
     FILL_COLOR_HEADER = '#ccc'
-    FILL_COLOR_SELECT = '#82bdbd'
+    FILL_COLOR_SELECT = '#72e8f1'
     TEXT_COLOR_OTHER_MONTH = '#888'
     
     def __init__(self, master, start_date=None, font_size=-1):
