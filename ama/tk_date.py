@@ -99,7 +99,7 @@ class DateEntry(ttk.Frame):
         lbl = ttk.Label(self, text=separator, width=1)
         lbl.grid(row=0, column=3)
         
-        btn = ttk.Button(self, text='Select...', command=self._select_date)
+        btn = ttk.Button(self, text='Select...', command=self.select_date)
         btn.grid(row=0, column=5, sticky=tk.E)
         
         self.columnconfigure(0, weight=0)
@@ -123,7 +123,7 @@ class DateEntry(ttk.Frame):
         self._month_value.set(d.month)
         self._day_value.set(d.day)
 
-    def _select_date(self):
+    def select_date(self):
         d = datetime.date(year=self._year_value.get(),
                           month=self._month_value.get(),
                           day=self._day_value.get())
