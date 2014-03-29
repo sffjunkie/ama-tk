@@ -215,7 +215,7 @@ class DateSelector(ttk.Frame):
         s = ttk.Style()
         s.configure('month.TLabel', font='TkDefaultFont', anchor='center')
         if self._font_size != -1:
-            s.configure('month.TLabel', size = self._font_size)
+            s.configure('month.TLabel', size=self._font_size)
         
         self._header = ttk.Frame(self, padding=(3,0))
         self._header.grid(row=0, column=0)
