@@ -129,7 +129,7 @@ class DateEntry(ttk.Frame):
                           day=self._day_value.get())
         
         dlg = DateDialog(self._asker._root, 'Select a Date...', start_date=d)
-        self._asker._root.wait_window(dlg._top)
+        self._asker._root.wait_window(dlg)
         new_date = dlg.date
         if new_date != None:
             self._year_value.set(new_date.year)
@@ -137,19 +137,18 @@ class DateEntry(ttk.Frame):
             self._day_value.set(new_date.day)
 
 
-class DateDialog(object):
+class DateDialog(tk.Toplevel):
     """Display a dialog to obtain a date from the user"""
     
     def __init__(self, master, title, start_date=None, font_size=-1):
-        self._master = master
-        self._top = tk.Toplevel(self._master)
-        self._top.title(title)
+        super(DateDialog, self).__init__(master, takefocus=True)
+        self.title(title)
         
-        self._selector = DateSelector(self._top, start_date, font_size)
+        self._selector = DateSelector(self, start_date, font_size)
         self._selector.grid(row=0, column=0, sticky=tk.NSEW)
-        self._top.columnconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
         
-        okcancel = ttk.Frame(self._top, padding=(3,3,3,3))
+        okcancel = ttk.Frame(self, padding=(3,3,3,3))
         
         # Swap the order of buttons for Windows
         if sys.platform.startswith('win32'):
@@ -171,20 +170,20 @@ class DateDialog(object):
         okcancel.grid(column=0, row=2, sticky=(tk.E, tk.W, tk.S))
         
         self.value = None
-        self._top.bind('<Escape>', self._cancel)
-        self._top.protocol('WM_DELETE_WINDOW', self._cancel)
-        self._top.lift()
-        self._top.grab_set()
+        self.bind('<Escape>', self._cancel)
+        self.protocol('WM_DELETE_WINDOW', self._cancel)
+        self.lift()
+        self.grab_set()
 
     def _ok(self, event=None):
         self.date = self._selector.date
-        self._top.grab_release()
-        self._top.destroy()
+        self.grab_release()
+        self.destroy()
     
     def _cancel(self, event=None):
         self.date = None
-        self._top.grab_release()
-        self._top.destroy()
+        self.grab_release()
+        self.destroy()
 
 
 class DateSelector(ttk.Frame):
