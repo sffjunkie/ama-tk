@@ -193,7 +193,6 @@ class DateSelector(ttk.Frame):
     """
         
     FILL_COLOR_HEADER = '#ccc'
-    FILL_COLOR_ACTIVE = '#96c8c8'
     FILL_COLOR_SELECT = '#82bdbd'
     TEXT_COLOR_OTHER_MONTH = '#888'
     
