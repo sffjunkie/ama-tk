@@ -31,72 +31,69 @@ try:
 except ImportError:
     import ttk
 
-from ama.validator import DEFAULT_DATE_FORMAT
-
 
 class DateEntry(ttk.Frame):
     """A date entry widget containing text entry boxes for year, month and day
-    and a button to display a date selection dialog
+    and a button to display a date selection dialog.
+    
+    :param master: The master frame
+    :type master: :class:`ttk.Frame`
+    :param start_date: The start date to display in the entry boxes
+    :type start_date:  datetime.date or datetime.datetime
+    :param date_separator: The string to display between the elements of the
+                           entries.
+    :type date_separator:  str
+    :param first_day_of_week: The first day to display in the date selection
+                              dialog
+    :type first_day_of_week:  int
     """
     
-    def __init__(self, asker, start_date=None,
-                 date_format=DEFAULT_DATE_FORMAT):
-        self._asker = asker
-        ttk.Frame.__init__(self, self._asker.content)
-        
-        self.format = date_format
-        if date_format.find('-') != -1:
-            separator = '-'
-        elif date_format.find('/') != -1:
-            separator = '/'
-        else:
-            raise ValueError("Don't know to handle date format %s" % \
-                             date_format)
+    def __init__(self, master,
+                 start_date=None,
+                 date_separator='-',
+                 first_day_of_week=calendar.MONDAY):
+        super(DateEntry, self).__init__(master)
 
-        elems = date_format.split(separator)
-            
-        self._calendar = calendar.TextCalendar()
-    
-        year_col = -1
-        month_col = -1
-        day_col = -1
-        for pos, elem in enumerate(elems):
-            if elem == '%Y':
-                year_col = pos
-            elif elem == '%y':
-                year_col = pos
-            elif elem == '%m':
-                month_col = pos
-            elif elem == '%d':
-                day_col = pos
+        self._calendar = calendar.LocaleTextCalendar(first_day_of_week, '')
     
         if start_date is None:
             d = datetime.date.today()
+        elif not isinstance(d, (datetime.date, datetime.datetime)):
+            raise ValueError('Invalid start date.')
         else:
             d = start_date
+    
+        self._time = None
+        if isinstance(d, datetime.datetime):
+            self._time = d.time()
     
         self._year_var = tk.IntVar()
         self._year_var.set(d.year)
         self._year_entry = ttk.Entry(self, textvariable=self._year_var,
                                      width=4)
-        self._year_entry.grid(row=0, column=year_col*2)
+        self._year_entry.grid(row=0, column=0)
 
         self._month_var = tk.IntVar()
+        self._month_entry = ttk.Combobox(self,
+                                         textvariable=self._month_var,
+                                         width=3)
+        self._month_entry['values'] = ['%02d' % (x + 1) for x in range(12)]
         self._month_var.set('%02d' % d.month)
-        self._month_entry = ttk.Entry(self, textvariable=self._month_var,
-                                      width=2)
-        self._month_entry.grid(row=0, column=month_col*2)
+        self._month_entry.grid(row=0, column=2)
+        self._month_entry.bind('<<ComboboxSelected>>', self._month_updated)
 
         self._day_var = tk.IntVar()
         self._day_var.set('%02d' % d.day)
-        self._day_entry = ttk.Entry(self, textvariable=self._day_var,
-                                    width=2)
-        self._day_entry.grid(row=0, column=day_col*2)
+        self._day_entry = ttk.Combobox(self,
+                                       textvariable=self._day_var,
+                                       width=3)
+        self._update_day_values(d.year, d.month)
+        self._day_entry.grid(row=0, column=4)
         
-        lbl = ttk.Label(self, text=separator, width=1)
+        lbl = ttk.Label(self, text=date_separator, width=1)
         lbl.grid(row=0, column=1)
         
-        lbl = ttk.Label(self, text=separator, width=1)
+        lbl = ttk.Label(self, text=date_separator, width=1)
         lbl.grid(row=0, column=3)
         
         btn = ttk.Button(self, text='Select...', command=self.select_date)
@@ -108,28 +105,53 @@ class DateEntry(ttk.Frame):
         self.columnconfigure(3, weight=0)
         self.columnconfigure(4, weight=0)
         self.columnconfigure(5, weight=1)
+        
+    def _update_day_values(self, year, month):
+        _, days_in_month = calendar.monthrange(year, month)
+        
+        new_day = None
+        if self._day_entry['values']:
+            current_last_day = int(self._day_entry['values'][-1])
+            if current_last_day > days_in_month:
+                new_day = days_in_month
 
+        self._day_entry['values'] = ['%02d' % (x + 1) for x in range(days_in_month)]
+        
+        if new_day:
+            self._day_var.set('%02d' % new_day)
+            
+    def _month_updated(self, event=None):
+        self._update_day_values(self._year_var.get(), self._month_var.get())
+        
     def get(self):
         d = datetime.datetime(year=self._year_var.get(),
                               month=self._month_var.get(),
                               day=self._day_var.get())
-        value = d.strftime(self.format)
-        return value
+        
+        if self._time:
+            d = d.replace(hour=self._time.hour,
+                          minute=self._time.minute,
+                          second=self._time.second)
+        
+        return d
     
-    def set(self, value):
-        value = str(value)
-        d = datetime.datetime.strptime(value, self.format)
+    def set(self, d):
         self._year_var.set(d.year)
         self._month_var.set('%02d' % d.month)
         self._day_var.set('%02d' % d.day)
+        
+        if isinstance(d, datetime.datetime):
+            self._time = d.time()
+        else:
+            self._time = None
 
     def select_date(self):
         d = datetime.date(year=self._year_var.get(),
                           month=self._month_var.get(),
                           day=self._day_var.get())
         
-        dlg = DateDialog(self._asker._root, 'Select a Date...', start_date=d)
-        self._asker._root.wait_window(dlg)
+        dlg = DateDialog(self, 'Select a Date...', start_date=d)
+        self.wait_window(dlg)
         new_date = dlg.date
         if new_date != None:
             self.set(new_date)
@@ -139,7 +161,7 @@ class DateDialog(tk.Toplevel):
     """Display a dialog to obtain a date from the user"""
     
     def __init__(self, master, title, start_date=None, font_size=-1):
-        super(DateDialog, self).__init__(master, takefocus=True)
+        super(DateDialog, self).__init__(master)
         self.title(title)
         
         self._selector = DateSelector(self, start_date, font_size)
@@ -167,10 +189,12 @@ class DateDialog(tk.Toplevel):
         
         okcancel.grid(column=0, row=2, sticky=(tk.E, tk.W, tk.S))
         
-        self.value = None
+        self.resizable(width=False, height=False)
+        
         self.bind('<Escape>', self._cancel)
         self.protocol('WM_DELETE_WINDOW', self._cancel)
-        self.lift()
+        self.focus()
+        self.transient(master)
         self.grab_set()
 
     def _ok(self, event=None):
@@ -220,9 +244,9 @@ class DateSelector(ttk.Frame):
                                     command=self._prev_month)
         self._prev_btn.grid(row=0, column=0, sticky=tk.E)
         
-        self._month_year_lbl = ttk.Label(self._header, text='January',
+        self._month_year_lbl = ttk.Label(self._header,
                                          width=16, style='month.TLabel')
-        self._month_year_lbl.grid(row=0, column=1, padx=5)
+        self._month_year_lbl.grid(row=0, column=1, padx=8)
         
         self._next_btn = ttk.Button(self._header, text='>', width=2,
                                     command=self._next_month)
@@ -265,7 +289,7 @@ class DateSelector(ttk.Frame):
         self._update()
     
     def _create(self):
-        week_days = self._calendar.formatweekheader(3).split(' ')
+        week_days = self._calendar.formatweekheader(3).split()
         
         day_font = font.Font(family='TkDefaultFont')
             
@@ -355,6 +379,20 @@ class DateSelector(ttk.Frame):
         
         self._days = self._calendar.monthdatescalendar(self.date.year,
                                                        self.date.month)
+        
+        # We display 6 weeks of days but some months only have 5 weeks in
+        # them this means the calendar doesn't have the required number of rows
+        # so we add another
+        if len(self._days) == 5:
+            d = self._days[4][-1]
+            delta = datetime.timedelta(days=1)
+            
+            missing_days = []
+            for day_number in range(7):
+                d += delta
+                missing_days.append(d)
+            
+            self._days.append(missing_days)
 
         if self._rct_tag:
             self._canvas.itemconfig(self._rct_tag, fill='')
@@ -408,8 +446,8 @@ class DateSelector(ttk.Frame):
                                 fill=self.FILL_COLOR_SELECT)
 
         self._rct_tag = rct_tag
-
-
+       
+        
 def next_month(d):
     year = d.year
     month = d.month + 1
@@ -420,7 +458,7 @@ def next_month(d):
     try:
         return d.__class__(year=year, month=month, day=d.day)
     except ValueError:
-        return d.__class__(year=year, month=month, day=1) - \
+        return d.__class__(year=year, month=month + 1, day=1) - \
             datetime.timedelta(days=1)
 
 
