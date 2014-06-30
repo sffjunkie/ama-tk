@@ -68,5 +68,12 @@
      null,
      "A time",
      "time"
+    ],
+"a_color":
+    ["Select a color",
+     null,
+     null,
+     "A color",
+     "color(rgbhex)"
     ]
 }
