@@ -1,16 +1,4 @@
-# Copyright 2009-2013, Simon Kennedy, code@sffjunkie.co.uk
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2009-2014, Simon Kennedy, code@sffjunkie.co.uk
 
 import json
 from string import Formatter
@@ -28,20 +16,32 @@ else:
         return x
         
 _Question = namedtuple('question',
-                       'key label type default help_text validator')
+                       'key label default help_text type_validator custom_validator')
 
-def Question(key, label, answer_type='str', default=None, help_text='',
-             validator=None):
-    return _Question(key, label, answer_type, default, help_text, validator)
+def Question(key, label, default=None, help_text='',
+             type_validator='str', custom_validator=None):
+    return _Question(key, label, default, help_text, type_validator, custom_validator)
 
 
 class Asker(object):
-    def __init__(self, filename=''):
-        if filename != '':
-            with open(filename) as fp:
-                data = fp.read()
-                self._questions = json.loads(data,
-                                             object_pairs_hook=OrderedDict)
+    """An object which mediates the question asking.
+    
+    :param ds: A datastream to read the questions from
+    :type ds:  Any object with a read metod
+    :param json_string: A JSON string to load the questions from
+    :type json_string: str
+    """
+    
+    def __init__(self, ds=None, json_string=None):
+        data = None
+        if ds:
+            data = ds.read()
+        elif json_string:
+            data = json_string
+                
+        if data:
+            self._questions = json.loads(data,
+                                         object_pairs_hook=OrderedDict)
         else:
             self._questions = None
             
@@ -89,8 +89,12 @@ class Asker(object):
                             self.depends_on_us[dep] = []
                         self.depends_on_us[dep].append(key)
                 
-                q = Question(key, question[0], question[1],
-                             default, question[3], question[4])
+                q = Question(key,
+                             label=question[0],
+                             default=default,
+                             help_text=question[3],
+                             type_validator=question[1],
+                             custom_validator=question[4])
                 self.add_question(key, q)
 
         result = self.go(initial_answers)
