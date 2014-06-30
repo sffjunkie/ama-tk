@@ -1,16 +1,4 @@
-# Copyright 2009-2013, Simon Kennedy, code@sffjunkie.co.uk
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2009-2014, Simon Kennedy, code@sffjunkie.co.uk
 
 try:
     import readline
@@ -28,7 +16,41 @@ from collections import OrderedDict
 
 from ama import Asker
 from ama.validator import validate_bool
-from ama.color import bright_green, cyan, bright_red
+
+try:
+    import colorama
+    colorama.init(autoreset=True)
+    COLOR = True
+except:
+    COLOR = False
+
+    
+def colorize(rgb_to_intensity, color, text):
+    if COLOR:
+        return colorama.Style.__dict__[rgb_to_intensity.upper()] + colorama.Fore.__dict__[color.upper()] + text
+    else:
+        return text
+
+
+def create_color_func(rgb_to_intensity, name):
+    def inner(text):
+        return colorize(rgb_to_intensity, name, text)
+    if rgb_to_intensity == 'normal':
+        globals()[name] = inner
+    else:
+        globals()['%s_%s' % (rgb_to_intensity, name)] = inner
+
+if COLOR:
+    intensities = [x for x in colorama.Style.__dict__.keys() if x!='RESET_ALL']
+    colours = [x for x in colorama.Fore.__dict__.keys() if x!='RESET']
+else:
+    intensities = ['DIM', 'NORMAL', 'BRIGHT']
+    colours = ['BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE']
+
+for rgb_to_intensity in intensities:
+    for fore in colours:
+        create_color_func(rgb_to_intensity.lower(), fore.lower())
+
 
 class TerminalAsker(Asker):
     """Ask the questions using the terminal.
@@ -41,8 +63,8 @@ class TerminalAsker(Asker):
     :type filename:  str
     """
     
-    def __init__(self, title, preamble='', filename=''):
-        Asker.__init__(self, filename)
+    def __init__(self, title, preamble='', ds=None, json_string=None):
+        Asker.__init__(self, ds, json_string)
         self._title = title
         self._preamble = preamble
         self._ask = OrderedDict()
