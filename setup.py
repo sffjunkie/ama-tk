@@ -15,12 +15,13 @@
 from setuptools import setup
 
 setup(name='ama',
-    version='0.1',
+    version='0.2',
     description="""Module to ask a set of questions from the user and return a set of answers""",
     author='Simon Kennedy',
     author_email='code@sffjunkie.co.uk',
     url="http://www.sffjunkie.co.uk/python-ama.html",
     license='Apache-2.0',
-    py_modules=['ama.terminal', 'ama.tk', 'ama.tk_tooltip', 'ama.validator', 'ama.color'],
-    extras_require={'color': ['colorama']}
+    py_modules=['ama.terminal', 'ama.tk', 'ama.validator'],
+	requires=['babel', 'tks'],
+    extras_require={'color': ['colorama']},
 )
