@@ -1,16 +1,4 @@
-# Copyright 2009-2013, Simon Kennedy, code@sffjunkie.co.uk
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2009-2014, Simon Kennedy, code@sffjunkie.co.uk
 
 """Provides a dictionary of validation functions to test values.
 
@@ -24,7 +12,8 @@ Validator Name            Tests that the value...
 ``yesno``                 matches one of ``yes``, ``y``, ``no``, ``n`` with any
                           case plus True and False
 :samp:`re({regexp})`      matches the regular expression `regexp`
-``path``                  is a valid path name that exists
+``path``                  is an existing path or is a valid name for a path
+``path(existing)``        is a path that exists
 ``path(empty)``           is a valid path name that is empty
 ``path(nonempty)``        is a valid path name that is not empty
 :samp:`path({pathspec})`  is a valid path name that contains files that conform
@@ -58,8 +47,10 @@ import re
 import csv
 import sys
 import glob
+import shutil
 import tempfile
 from io import StringIO
+from functools import partial
 from datetime import datetime, date, time
 
 try:
@@ -89,6 +80,7 @@ def validate_bool(value):
         return False
     else:
         raise ValueError('Please enter a valid boolean value')
+
     
 def validate_int(value):
     if value == '':
@@ -98,6 +90,7 @@ def validate_int(value):
         return int(value)
     except:
         raise ValueError('Please enter an integer value')
+
     
 def validate_float(value):
     if value == '':
@@ -107,6 +100,7 @@ def validate_float(value):
         return float(value)
     except:
         raise ValueError('Please enter a floating point value')
+
 
 def validate_regex(regex):
     def validate(value):
@@ -120,27 +114,35 @@ def validate_regex(regex):
     
     return validate
 
-def validate_could_be_path(value):
-    temp_path = tempfile.gettempdir()
-    
-    if 'win' in sys.platform and value[1] ==':':
-        value = value[2:]
-        
-    value = value.strip(os.sep)
-    
-    path_name = os.path.join(temp_path, value)
-    
-    try:
-        os.makedirs(path_name)
-        os.rmdir(path_name)
-    except:
-        raise ValueError('Please enter a valid path name')
 
 def validate_path(value):
+    if os.path.isdir(value):
+        return value
+    
+    if os.path.isabs(value):
+        d, p = os.path.splitdrive(value)
+    else:
+        p = value
+
+    if p[0] == '\\' or p[0] == '/':
+        p = p[1:]
+    
+    p = os.path.normcase(p)
+    
+    try:
+        tf = tempfile.mkdtemp(dir=p)
+        shutil.rmtree(tf)
+        return value
+    except:
+        raise ValueError('Path %s is not a valid path name')
+
+
+def validate_path_existing(value):
     is_dir = os.path.exists(value) and os.path.isdir(value)
     if not is_dir:
-        raise ValueError('Please enter a valid path name.')
+        raise ValueError('Path name %s does not exist.' % value)
     return value
+
 
 def validate_path_empty(value):
     is_dir = os.path.exists(value) and os.path.isdir(value)
@@ -152,6 +154,7 @@ def validate_path_empty(value):
                                'for which the path is empty.'))
     return value
 
+
 def validate_path_nonempty(value):
     is_dir = os.path.exists(value) and os.path.isdir(value)
     if not is_dir:
@@ -162,13 +165,16 @@ def validate_path_nonempty(value):
                           'for which the path is not empty.'))
     return value
 
+
 def path_includes_file(path, filespec):
     fname = os.path.join(path, filespec)
     return os.path.exists(fname)
 
+
 def path_does_not_include_file(path, filespec):
     fname = os.path.join(path, filespec)
     return not os.path.exists(fname)
+
 
 def validate_path_with_spec(pathspec):
     reader = csv.reader(StringIO(pathspec))
@@ -212,10 +218,12 @@ def validate_path_with_spec(pathspec):
     
     return validate
 
+
 def validate_nonempty(value):
     if value is None or str(value) == '':
         raise ValueError("Please enter something in this field.")
     return value
+
 
 def validate_date(date_format=DEFAULT_DATE_FORMAT):
     def validate(value):
@@ -229,7 +237,7 @@ def validate_date(date_format=DEFAULT_DATE_FORMAT):
             return value
         
         try:
-            d = datetime.strptime(value, '%Y-%m-%d')
+            d = datetime.strptime(value, date_format)
             return d.date()
         except:
             f = date_format
@@ -239,6 +247,7 @@ def validate_date(date_format=DEFAULT_DATE_FORMAT):
             raise ValueError('Please enter a valid date in %s format.' % f)
         
     return validate
+
 
 def validate_time(time_format=DEFAULT_TIME_FORMAT):
     def validate(value):
@@ -260,20 +269,17 @@ def validate_time(time_format=DEFAULT_TIME_FORMAT):
         
     return validate
 
-def extract_spec(key):
-    start = key.find('(')
-    if start != -1 and key[-1] == ')':
-        return key[start+1:-1]
-    else:
-        return ''
 
 def validate_color(colorspec):
     def validate_rgb(value):
-        elems = value[4:-1].split(',')
-        if len(elems) == 3:
-            return tuple(map(int, elems))
+        if isinstance(value, (tuple, list)):
+            return tuple(value[:3])
+        elif value.startswith('rgb('):
+            elems = value[4:-1].split(',')[:3]
         else:
-            raise ValueError('Please enter a valid color in rgb(r,g,b) or #rrggbb format')
+            elems = value.split(',')[:3]
+            
+        return tuple(map(int, elems))
     
     def validate_hex(value):
         if value[0] == '#':
@@ -294,8 +300,16 @@ def validate_color(colorspec):
     
     if colorspec == 'rgb':
         return validate_rgb
-    elif colorspec == 'hex':
+    elif colorspec == 'rgbhex':
         return validate_hex
+
+
+def extract_spec(key):
+    start = key.find('(')
+    if start != -1 and key[-1] == ')':
+        return key[start+1:-1]
+    else:
+        return ''
 
 
 class _Registry():
@@ -308,6 +322,7 @@ class _Registry():
             'float': validate_float,
             # 're(regex)'
             'path': validate_path,
+            'path(existing)': validate_path_existing,
             'path(empty)': validate_path_empty,
             'path(nonempty)': validate_path_nonempty,
             # 'path(pathspec)'
@@ -329,8 +344,7 @@ class _Registry():
         if key.startswith('re'):
             spec = extract_spec(key)
             if spec != '':
-                regex = key[3:-1]
-                func = validate_regex(regex)
+                func = validate_regex(spec)
             else:
                 func = lambda value: str(value)
             self._validators[key] = func
@@ -339,7 +353,6 @@ class _Registry():
         elif key.startswith('path'):
             spec = extract_spec(key)
             if spec != '':
-                spec = key[5:-1]
                 func = validate_path_with_spec(spec)
             else:
                 func = validate_path
@@ -349,7 +362,6 @@ class _Registry():
         elif key.startswith('date'):
             spec = extract_spec(key)
             if spec != '':
-                spec = key[5:-1]
                 func = validate_date(spec)
             else:
                 func = validate_date()
@@ -359,7 +371,6 @@ class _Registry():
         elif key.startswith('time'):
             spec = extract_spec(key)
             if spec != '':
-                spec = key[5:-1]
                 func = validate_time(spec)
             else:
                 func = validate_time()
