@@ -2,7 +2,6 @@
 
 import sys
 import os.path
-from pkgutil import get_data
 from collections import OrderedDict
 
 try:
@@ -25,12 +24,8 @@ try:
 except ImportError:
     import tkFileDialog as filedialog
 
-try:
-    from base64 import encodebytes
-except ImportError:
-    from base64 import encodestring as encodebytes
-
 from ama import Asker, u
+from tks.icon import set_icon_from_resource
 from tks.tooltip import ToolTip
 from tks.dates import DateEntry
 from tks.times import TimeEntry
@@ -64,9 +59,7 @@ class TkAsker(Asker):
         self._root = tk.Tk()
         self._root.title(self._title)
         
-        data = encodebytes(get_data('ama', 'icon.gif'))
-        image = tk.PhotoImage(data=data)
-        self._root.tk.call('wm', 'iconphoto', self._root._w, image)
+        set_icon_from_resource(self._root, 'ama', 'icon.gif')
 
         f = font.Font(font=('TkHeadingFont', 0, font.BOLD))
         ttk.Style().configure('header.TLabel', font=f)
