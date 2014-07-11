@@ -11,8 +11,8 @@ try:
 except:
     pass
 
-from os.path import normpath
-from collections import OrderedDict
+import os.path
+import collections 
 
 from ama import Asker
 from ama.validator import validate_bool
@@ -67,7 +67,7 @@ class TerminalAsker(Asker):
         Asker.__init__(self, ds, json_string)
         self._title = title
         self._preamble = preamble
-        self._ask = OrderedDict()
+        self._ask = collections.OrderedDict()
     
     def add_question(self, key, question):
         """Add a question to the list of questions.
@@ -124,7 +124,7 @@ class TerminalAsker(Asker):
                 default = question.default
             
             if question.validator and question.validator.startswith('path'):
-                default = normpath(default)
+                default = os.path.normpath(default)
             
             prompt_tail = ' [%s]' % default
         
