@@ -1,5 +1,6 @@
 # Copied from Python 2 getpass.py
-# Changed win_getpass to use wide functions
+# Changed win_getpass to use wide functions.
+# The Python 3 version of getpass already uses these
 
 """Utilities to get a password and/or the current user name.
 
@@ -20,7 +21,7 @@ On the Mac EasyDialogs.AskPassword is used, if available.
 
 import os, sys, warnings
 
-__all__ = ["getpass","getuser","GetPassWarning"]
+__all__ = ["getpass", "getuser", "GetPassWarning"]
 
 
 class GetPassWarning(UserWarning): pass
@@ -45,7 +46,7 @@ def unix_getpass(prompt='Password: ', stream=None):
     tty = None
     try:
         # Always try reading and writing directly on the tty first.
-        fd = os.open('/dev/tty', os.O_RDWR|os.O_NOCTTY)
+        fd = os.open('/dev/tty', os.O_RDWR | os.O_NOCTTY)
         tty = os.fdopen(fd, 'w+', 1)
         input = tty
         if not stream:
@@ -117,7 +118,7 @@ def fallback_getpass(prompt='Password: ', stream=None):
                   stacklevel=2)
     if not stream:
         stream = sys.stderr
-    print >>stream, "Warning: Password input may be echoed."
+    print >> stream, "Warning: Password input may be echoed."
     return _raw_input(prompt, stream)
 
 

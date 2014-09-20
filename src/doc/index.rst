@@ -1,9 +1,6 @@
-.. Ask Me Anything documentation master file, created by
-   sphinx-quickstart on Tue Apr 30 17:04:21 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. Copyright 2013-2014, Simon Kennedy, sffjunkie+code@gmail.com
 
-Ask Me Anything V0.1
+Ask Me Anything V0.2
 ====================
 
 Ask Me Anything (AMA) is a package to prompt the user for answers to a series
@@ -38,7 +35,7 @@ This module is licensed under the terms of the `Apache`_ V2.0 license.
 Contact
 =======
     
-Simon Kennedy <code@sffjunkie.co.uk>
+Simon Kennedy <sffjunkie+code@gmail.com>
     
 Version History
 ===============
@@ -46,6 +43,10 @@ Version History
 ======== =======================================================================
 Version  Description
 ======== =======================================================================
+0.2      * Added date, time, color handling
+         * Changed how questions are defined in JSON
+         * Simplification of validation
+-------- -----------------------------------------------------------------------
 0.1      Initial version with terminal and Tkinter support
 ======== =======================================================================
     
@@ -56,5 +57,6 @@ Version  Description
    json
    validation   
    module
+   module_validator
 
 .. _Apache: http://www.opensource.org/licenses/apache2.0.php

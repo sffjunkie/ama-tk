@@ -1,79 +1,86 @@
 {
+"a_date":
+    ["Select a date",
+     "A date",
+     null,
+     "date",
+     null
+    ],
+"a_time":
+    ["Select a time",
+     "A time",
+     null,
+     "time",
+     "%H:%M:%S"
+    ],
+"a_color":
+    ["Select a color",
+     "A color",
+     "#fdcbef",
+     "color",
+     "rgbhex"
+    ],
 "path":
 	["Root path",
-     "str",
-     ".",
      "Root path for the documentation",
-     "path"
+     "root",
+     "path",
+     "existing"
     ],
 "count":
 	["Number of items",
-     "int",
-     1,
      "How many items",
+     1,
+     "int",
      null
     ],
 "payment":
 	["Payment per month",
-     "float",
-     1.1,
      "How many items",
+     1.1,
+     "float",
      null
     ],
 "show_all":
 	["Show everything",
-     "bool",
-     true,
      "Do you want to show every single item in the whole world",
+     true,
+     "bool",
      null
     ],
 "show_yesno":
 	["Really everything",
-     "yesno",
-     false,
      "Do you really want to show every single item in the whole world",
+     false,
+     "yesno",
      null
     ],
 "something":
 	["A non empty field",
-     "str",
-     "a",
      "You really have to enter something",
+     "a",
+     "str",
      "nonempty"
     ],
 "path2":
     ["Another path",
-     "str",
-     "pypirc",
      "A second path used by the next question to join 2 together",
+     "pypirc",
+     "str",
      null
     ],
 "join_path":
     ["Compound path",
-     "str",
-     "{path}/{path2}",
      "Joining of path & path2",
-     "path"
+     "{path}/{path2}",
+     "path",
+     null
     ],
-"a_date":
-    ["Select a date",
+"apassword":
+    ["Please Enter Your foobar Password",
+     "A password entry",
      null,
-     null,
-     "A date",
-     "date"
-    ],
-"a_time":
-    ["Select a time",
-     null,
-     null,
-     "A time",
-     "time"
-    ],
-"a_color":
-    ["Select a color",
-     null,
-     null,
-     "A color",
-     "color(rgbhex)"
+     "password",
+     null
     ]
 }
