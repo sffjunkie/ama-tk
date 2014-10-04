@@ -1,4 +1,4 @@
-# Copyright 2009-2013, Simon Kennedy, code@sffjunkie.co.uk
+# Copyright 2009-2014, Simon Kennedy, sffjunkie+code@gmail.com
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,14 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
+import sys
+import os.path
 from setuptools import setup
+
+def read(*names, **kwargs):
+    return io.open(
+        os.path.join(os.path.dirname(__file__), *names),
+        encoding=kwargs.get("encoding", "utf8")
+    ).read()
 
 setup(name='ama',
     version='0.2',
-    description="""Module to ask a set of questions from the user and return a set of answers""",
+    description="""Module to ask a set of questions from the user and return a set of answers.""",
+    long_description=read('README'),
     author='Simon Kennedy',
-    author_email='code@sffjunkie.co.uk',
-    url="http://www.sffjunkie.co.uk/python-ama.html",
+    author_email='sffjunkie+code@gmail.com',
+    url="https://launchpad.net/asker",
     license='Apache-2.0',
     package_dir={'': 'src'},
     py_modules=['ama.terminal', 'ama.tk', 'ama.validator'],
