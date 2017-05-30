@@ -13,6 +13,8 @@ tox.ini
 *.vi
 *~
 *.sass-cache
+*.egg-info
+
 
 # OS or Editor folders
 .DS_Store
@@ -28,6 +30,7 @@ nbproject
 *.sublime-project
 *.sublime-workspace
 *.iml
+MANIFEST
 
 # Dreamweaver added files
 _notes
@@ -46,6 +49,8 @@ intermediate
 publish
 .idea
 __pycache__
+build
+dist
 
 # build script local files
 build/buildinfo.properties
