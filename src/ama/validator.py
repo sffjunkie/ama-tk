@@ -1,4 +1,5 @@
 # Copyright 2013-2014, Simon Kennedy, sffjunkie+code@gmail.com
+# pylint: disable=unused-argument
 
 """Provides access to a registry of validation functions.
 
@@ -33,6 +34,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import sys
 import csv
+import gettext
 import glob
 import shutil
 import string
@@ -54,13 +56,17 @@ except ImportError:
     PYISEMAIL = False
 
 
-__all__ = ['Validators']
+if sys.version_info < (3, 0):
+    gettext.install('ama', unicode=True) #pylint: disable=unexpected-keyword-arg
+else:
+    gettext.install('ama')
+
 
 DEFAULT_TIME_FORMAT = '%H:%M'
 DEFAULT_DATE_FORMAT = '%Y-%m-%d'
 
 
-if sys.version_info > (3, 0):
+if sys.version_info >= (3, 0):
     str_type = str
     csv.register_dialect('ama', delimiter='|')
 else:
@@ -152,6 +158,9 @@ def Str(*args, **kwargs):
     """
 
     def validate(value, **kwargs):
+        if value is None or value=='':
+            return ''
+        
         try:
             value = str(value)
         except:
@@ -249,6 +258,7 @@ def Float(*args, **kwargs):
                          | ``min`` - The minimum value
                          | ``max`` - The maximum value
                          | ``decimal`` - The character to consider as the decimal separator
+                         | ``nocoerce`` - Disable coercing int to float
 
                      e.g. "min=3.1,max=6.0" means the value must be between
                      3.1 and 6.0; "decimal=\\\\," means that "33,234" is a valid float.
@@ -258,13 +268,13 @@ def Float(*args, **kwargs):
     def validate(value, **kwargs):
         msg = _('Invalid floating point value')
 
-        if isinstance(value, int):
+        if 'nocoerce' in kwargs and isinstance(value, int):
             raise TypeError(msg)
 
         if isinstance(value, str_type):
             decimal = kwargs.get('decimal', '.')
 
-            if decimal not in value:
+            if 'nocoerce' in kwargs and decimal not in value:
                 raise ValueError(msg)
             elif decimal != '.':
                 value = value.replace(decimal, '.')
@@ -661,13 +671,13 @@ def Email(*args, **kwargs):
 
         if PYISEMAIL and 're' not in args:
             kwargs = str_to_kwargs(args[0])
-            m = pyisemail.is_email(value, **kwargs)
+            match = pyisemail.is_email(value, **kwargs)
         else:
-            m = re.match(r'^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$',
+            match = re.match(r'^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$',
                          value,
                          flags=re.IGNORECASE)
 
-        if not m:
+        if not match:
             raise ValueError(msg)
         else:
             return value
@@ -675,7 +685,7 @@ def Email(*args, **kwargs):
     return validate
 
 
-entry_point_re = re.compile('\w+(\.\w)?\:\w+(\.\w)?')
+entry_point_re = re.compile(r'\w+(\.\w)?\:\w+(\.\w)?')
 
 validators = {
     'nonempty': NonEmpty,

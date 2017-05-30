@@ -51,7 +51,7 @@ def unix_getpass(prompt='Password: ', stream=None):
         input = tty
         if not stream:
             stream = tty
-    except EnvironmentError, e:
+    except EnvironmentError as e:
         # If that fails, see if stdin can be controlled.
         try:
             fd = sys.stdin.fileno()
@@ -76,7 +76,7 @@ def unix_getpass(prompt='Password: ', stream=None):
             finally:
                 termios.tcsetattr(fd, tcsetattr_flags, old)
                 stream.flush()  # issue7208
-        except termios.error, e:
+        except termios.error as e:
             if passwd is not None:
                 # _raw_input succeeded.  The final tcsetattr failed.  Reraise
                 # instead of leaving the terminal in an unknown state.
@@ -118,7 +118,7 @@ def fallback_getpass(prompt='Password: ', stream=None):
                   stacklevel=2)
     if not stream:
         stream = sys.stderr
-    print >> stream, "Warning: Password input may be echoed."
+    print("Warning: Password input may be echoed.", file=stream)
     return _raw_input(prompt, stream)
 
 
@@ -128,13 +128,13 @@ def _raw_input(prompt="", stream=None, input=None):
     if not stream:
         stream = sys.stderr
     if not input:
-        input = sys.stdin
+        _input = sys.stdin
     prompt = str(prompt)
     if prompt:
         stream.write(prompt)
         stream.flush()
     # NOTE: The Python C API calls flockfile() (and unlock) during readline.
-    line = input.readline()
+    line = _input.readline()
     if not line:
         raise EOFError
     if line[-1] == '\n':
@@ -149,8 +149,6 @@ def getuser():
     database.  This works on Windows as long as USERNAME is set.
 
     """
-
-    import os
 
     for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
         user = os.environ.get(name)

@@ -17,18 +17,13 @@ from collections import OrderedDict
 
 try:
     import tkinter as tk
-except ImportError:
-    import Tkinter as tk
-
-try:
     from tkinter import font
-except ImportError:
-    import tkFont as font
-
-try:
     from tkinter import ttk
 except ImportError:
+    import Tkinter as tk
+    import tkFont as font
     import ttk
+
 
 from ama import Asker
 import ama.validator
@@ -38,7 +33,7 @@ from tks.dates import DateVar, DateEntry
 from tks.times import TimeVar, TimeEntry
 from tks.colors import ColorVar, ColorEntry
 from tks.fs import DirEntry
-from tks.password import PasswordEntry
+from tks.passwords import PasswordEntry
 import tks.color_funcs
 
 
@@ -66,6 +61,7 @@ class TkAsker(Asker):
         self._row = 0
         self._ask = OrderedDict()
         self._working_directory = os.getcwd()
+        self._result = None
 
         self._root = tk.Tk()
         self._root.title(self._title)
@@ -133,7 +129,7 @@ class TkAsker(Asker):
         self._ask[key] = tkq
         self._row = self._row + 1
 
-    def go(self, initial_answers):
+    def run(self):
         """Perform the question asking by displaying in a Tkinter window"""
 
         self._result = {}
@@ -192,6 +188,7 @@ class TkAsker(Asker):
 
         return True
 
+    # pylint: disable=unused-argument
     def _ok(self, event=None):
         """Respond to the OK button being pressed."""
 
@@ -206,6 +203,7 @@ class TkAsker(Asker):
 
         self._root.destroy()
 
+    # pylint: disable=unused-argument
     def _cancel(self, event=None):
         """Respond to the Cancel button being pressed."""
 
@@ -221,11 +219,11 @@ class TkQuestion(object):
         self._asker = asker
         self._row = row
 
-        self._key = question.key
-        self._label = question.label
-        self._default = question.default
-        self._validator = question.validator
-        self._spec = question.spec
+        self._key = question['name']
+        self._label = question['message']
+        self._default = question.get('default', None)
+        self._validator = question['type']
+        self._spec = question.get('format', None)
 
         if self._spec and self._spec.startswith('path'):
             self._default = os.path.normpath(self._default)
@@ -233,7 +231,7 @@ class TkQuestion(object):
         self._dont_update = ['bool', 'yesno', 'date',
                              'time', 'color', 'password']
 
-        self._value = None
+        self._tkvar = None
         self._entry = None
 
         self._is_edited = False
@@ -249,10 +247,10 @@ class TkQuestion(object):
 
         ttk.Style().configure('error.TLabel', font=f)
         self._info_label = ttk.Label(asker.content, width=2,
-                                    anchor=tk.CENTER)
+                                     anchor=tk.CENTER)
         self._info_label.grid(column=2, row=self._row, padx=(3, 0))
 
-        self._help_text = question.help_text
+        self._help_text = question.get('help', '')
         if self._help_text != '':
             self._info_label['text'] = '?'
             ToolTip(self._info_label, msg=self._help_text, delay=0.5)
@@ -263,18 +261,18 @@ class TkQuestion(object):
         current_answers = self._asker.current_answers()
 
         if self._validator == 'path':
-            self._value = tk.StringVar()
-            self._entry = DirEntry(asker.content, variable=self._value)
+            self._tkvar = tk.StringVar()
+            self._entry = DirEntry(asker.content, variable=self._tkvar)
             frame = self._entry
 
         elif self._validator == 'date':
-            self._value = DateVar()
-            self._entry = DateEntry(asker.content, variable=self._value)
+            self._tkvar = DateVar()
+            self._entry = DateEntry(asker.content, variable=self._tkvar)
             frame = self._entry
 
         elif self._validator == 'time':
-            self._value = TimeVar()
-            self._entry = TimeEntry(asker.content, variable=self._value)
+            self._tkvar = TimeVar()
+            self._entry = TimeEntry(asker.content, variable=self._tkvar)
             frame = self._entry
 
         elif self._validator == 'color':
@@ -283,7 +281,7 @@ class TkQuestion(object):
             else:
                 color_format = 'rgbhex'
 
-            self._value = ColorVar()
+            self._tkvar = ColorVar()
             if self._default:
                 if self._spec == 'rgbhex':
                     color = tks.color_funcs.hex_string_to_rgb(self._default,
@@ -291,47 +289,47 @@ class TkQuestion(object):
                 else:
                     color = tks.color_funcs.color_string_to_rgb(self._default)
 
-            self._value.set(color)
+            self._tkvar.set(color)
 
-            self._entry = ColorEntry(asker.content, variable=self._value,
+            self._entry = ColorEntry(asker.content, variable=self._tkvar,
                                      color_format=color_format)
 
             self._spec = 'rgb'
             frame = self._entry
 
         elif self._validator == 'password':
-            self._value = tk.StringVar()
-            self._entry = PasswordEntry(asker.content, variable=self._value)
+            self._tkvar = tk.StringVar()
+            self._entry = PasswordEntry(asker.content, variable=self._tkvar)
             frame = self._entry
 
         elif self._validator == 'str':
-            self._value = tk.StringVar()
-            self._entry = ttk.Entry(asker.content, textvariable=self._value,
-                                   validate='all',
-                                   validatecommand=self._validate_entry)
+            self._tkvar = tk.StringVar()
+            self._entry = ttk.Entry(asker.content, textvariable=self._tkvar,
+                                    validate='all',
+                                    validatecommand=self._validate_entry)
             frame = self._entry
 
         elif self._validator == 'int' or isinstance(self._validator, int):
-            self._value = tk.IntVar()
-            self._entry = ttk.Entry(asker.content, textvariable=self._value,
-                                   validate='all',
-                                   validatecommand=self._validate_entry)
+            self._tkvar = tk.IntVar()
+            self._entry = ttk.Entry(asker.content, textvariable=self._tkvar,
+                                    validate='all',
+                                    validatecommand=self._validate_entry)
             self._entry.configure(width=30)
             frame = self._entry
 
         elif self._validator == 'float' or isinstance(self._validator, float):
-            self._value = tk.DoubleVar()
-            self._entry = ttk.Entry(asker.content, textvariable=self._value,
-                                   validate='all',
-                                   validatecommand=self._validate_entry)
+            self._tkvar = tk.DoubleVar()
+            self._entry = ttk.Entry(asker.content, textvariable=self._tkvar,
+                                    validate='all',
+                                    validatecommand=self._validate_entry)
             self._entry.configure(width=30)
             frame = self._entry
 
         elif self._validator == 'bool' or \
             self._validator == 'yesno' or \
             isinstance(self._validator, bool):
-            self._value = tk.BooleanVar()
-            self._value.set(self._default)
+            self._tkvar = tk.BooleanVar()
+            self._tkvar.set(self._default or False)
             frame = ttk.Frame(asker.content)
 
             if self._validator == 'yesno':
@@ -340,25 +338,25 @@ class TkQuestion(object):
                 text = ('True', 'False')
 
             y = ttk.Radiobutton(frame, text=text[0],
-                                variable=self._value, value=True)
+                                variable=self._tkvar, value=True)
             y.grid(column=0, row=0, padx=(0, 5))
 
             n = ttk.Radiobutton(frame, text=text[1],
-                                variable=self._value, value=False)
+                                variable=self._tkvar, value=False)
             n.grid(column=1, row=0)
 
         elif isinstance(self._validator, list):
-            self._value = tk.StringVar()
+            self._tkvar = tk.StringVar()
             self.value = self._validator[0]
             if len(self._validator) <= 3:
                 frame = ttk.Frame(asker.content)
                 for idx, e in enumerate(self._validator):
                     rb = ttk.Radiobutton(frame, text=str(e),
-                                         variable=self._value, value=str(e))
+                                         variable=self._tkvar, value=str(e))
                     rb.grid(column=idx, row=0, padx=(0, 5))
             else:
                 self._entry = ttk.Combobox(asker.content,
-                                           textvariable=self._value)
+                                           textvariable=self._tkvar)
                 self._entry['values'] = tuple(self._validator)
                 frame = self._entry
 
@@ -380,13 +378,17 @@ class TkQuestion(object):
         """Update our unedited value with the other answers."""
 
         if not self.edited and self._validator not in self._dont_update:
-            updated_answer = str(self._default).format(**current_answers)
+            _current_answers = {k: v for k, v in current_answers.items() if v is not None}
+            
+            if self._validator == 'str' and self._default is None:
+                self._default = ''
+            updated_answer = str(self._default).format(**_current_answers)
             self.value = updated_answer
 
     @property
     def value(self):
         if self.valid:
-            return self._validate(self._value.get())
+            return self._validate(self._tkvar.get())
         else:
             return ''
 
@@ -394,10 +396,10 @@ class TkQuestion(object):
     def value(self, value):
         try:
             value = self._validate(value)
-            self._value.set(value)
+            self._tkvar.set(value)
             self.valid = True
         except (TypeError, ValueError):
-            self._value.set(value)
+            self._tkvar.set(value)
             self.valid = False
 
     @property
@@ -430,6 +432,7 @@ class TkQuestion(object):
                 self._entry['style'] = 'unedited.TEntry'
 
     def _tk_validate_entry(self, P, V):
+        # pylint: disable=invalid-name
         rtn = 1
         if V == 'focusout':
             if self._spec == 'nonempty'and not P:
@@ -442,7 +445,7 @@ class TkQuestion(object):
                 try:
                     _value = self._validate(P)
                     self.valid = True
-                except:
+                except (ValueError, TypeError):
                     self.valid = False
                     rtn = 0
 
@@ -458,13 +461,13 @@ class TkQuestion(object):
     def _create_entry_with_button(self, master, text, command):
         frame = ttk.Frame(master)
 
-        self._entry = ttk.Entry(frame, textvariable=self._value,
-            validate='all',
-            validatecommand=self._validate_entry)
+        self._entry = ttk.Entry(frame, textvariable=self._tkvar,
+                                validate='all',
+                                validatecommand=self._validate_entry)
         self._entry.grid(column=0, row=0, sticky=tk.EW)
 
         btn = ttk.Button(frame, text=text,
-            command=command)
+                         command=command)
         btn.grid(column=1, row=0, sticky=tk.E, padx=(6, 0))
 
         frame.columnconfigure(0, weight=1)

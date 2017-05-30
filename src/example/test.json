@@ -1,86 +1,87 @@
+[
 {
-"a_date":
-    ["Select a date",
-     "A date",
-     null,
-     "date",
-     null
-    ],
-"a_time":
-    ["Select a time",
-     "A time",
-     null,
-     "time",
-     "%H:%M:%S"
-    ],
-"a_color":
-    ["Select a color",
-     "A color",
-     "#fdcbef",
-     "color",
-     "rgbhex"
-    ],
-"path":
-	["Root path",
-     "Root path for the documentation",
-     "root",
-     "path",
-     "existing"
-    ],
-"count":
-	["Number of items",
-     "How many items",
-     1,
-     "int",
-     null
-    ],
-"payment":
-	["Payment per month",
-     "How many items",
-     1.1,
-     "float",
-     null
-    ],
-"show_all":
-	["Show everything",
-     "Do you want to show every single item in the whole world",
-     true,
-     "bool",
-     null
-    ],
-"show_yesno":
-	["Really everything",
-     "Do you really want to show every single item in the whole world",
-     false,
-     "yesno",
-     null
-    ],
-"something":
-	["A non empty field",
-     "You really have to enter something",
-     "a",
-     "str",
-     "nonempty"
-    ],
-"path2":
-    ["Another path",
-     "A second path used by the next question to join 2 together",
-     "pypirc",
-     "str",
-     null
-    ],
-"join_path":
-    ["Compound path",
-     "Joining of path & path2",
-     "{path}/{path2}",
-     "path",
-     null
-    ],
-"apassword":
-    ["Please Enter Your foobar Password",
-     "A password entry",
-     null,
-     "password",
-     null
-    ]
+    "type": "date",
+    "name": "a_date",
+    "message": "Enter a date",
+    "help": "A date"
+},
+{
+    "type": "time",
+    "name": "a_time",
+    "message": "Enter a time",
+    "help": "A time",
+    "format": "%H:%M"
+},
+{
+    "type": "color",
+    "name": "a_color",
+    "message": "Enter a color",
+    "help": "A color",
+    "default": "#fdcbef",
+    "format": "rgbhex"
+},
+{
+    "type": "path",
+    "name": "path",
+	"message": "Root path",
+    "help": "Root path for the documentation",
+    "default": "root",
+    "validate": "existing"
+},
+{
+    "type": "int",
+    "name": "count",
+	"message": "Number of items",
+    "help": "How many items",
+    "default": 1
+},
+{
+    "type": "float",
+    "name": "payment",
+	"message": "Payment per month",
+    "help": "How many items",
+    "default": 1.1
+},
+{
+    "type": "bool",
+    "name": "show_all",
+	"message": "Show everything",
+    "help": "Do you want to show every single item in the whole world",
+    "default": true
+},
+{
+    "type": "yesno",
+    "name": "show_yesno",
+	"message": "Really everything",
+    "help": "Do you really want to show every single item in the whole world",
+    "default": false
+},
+{
+    "type": "str",
+    "name": "something",
+	"message": "A non empty field",
+    "help": "You really have to enter something",
+    "default": "a",
+    "validate": "nonempty"
+},
+{
+    "type": "str",
+    "name": "path2",
+    "message": "Another path",
+    "help": "A second path used by the next question to join 2 together",
+    "default": "pypirc"
+},
+{
+    "type": "path",
+    "name": "join_path",
+    "message": "Compound path",
+    "help": "Joining of path & path2",
+    "default": "{path}/{path2}"
+},
+{
+    "type": "password",
+    "name": "apassword",
+    "message": "Please Enter Your foobar Password",
+    "help": "A password entry"
 }
+]

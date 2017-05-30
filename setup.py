@@ -33,6 +33,10 @@ setup(name='ama',
     license='Apache-2.0',
     package_dir={'': 'src'},
     py_modules=['ama.terminal', 'ama.tk', 'ama.validator'],
-	install_requires=['babel', 'tks'],
-    extras_require={'color': ['colorama']},
+	install_requires=['babel', 'cerberus', 'tks'],
+    extras_require={
+        'color': ['colorama'],
+        'date_picker': ['tks'],
+        'time_picker': ['tks'],
+    },
 )

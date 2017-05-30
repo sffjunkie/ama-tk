@@ -1,9 +1,11 @@
 # Copyright 2013-2014, Simon Kennedy, sffjunkie+code@gmail.com
 
+"""Terminal based Asker"""
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 try:
-    import readline
+    import readline #pylint: disable=unused-import
 except ImportError:
     pass
 
@@ -14,58 +16,53 @@ import datetime
 import collections
 
 from ama import Asker
-from ama.validator import Bool
+import ama.validator
 
 if sys.version_info < (3, 0):
-    input = raw_input
-
-class TerminalException(Exception): pass
+    input = raw_input  #pylint: disable=redefined-builtin,invalid-name,undefined-variable
 
 
 try:
     import colorama
     colorama.init()
     COLOR = True
-except:
+except ImportError:
     COLOR = False
 
 
-def colorize(rgb_to_intensity, color, text):
-    if COLOR:
-        return colorama.Style.__dict__[rgb_to_intensity.upper()] + colorama.Fore.__dict__[color.upper()] + text + colorama.Style.RESET_ALL
-    else:
-        return text
-
-
-def create_color_func(rgb_to_intensity, name):
+def create_color_func(intensity, color):
     def inner(text):
-        return colorize(rgb_to_intensity, name, text)
-    if rgb_to_intensity == 'normal':
-        globals()[name] = inner
+        if COLOR:
+            return colorama.Style.__dict__[intensity.upper()] + \
+                colorama.Fore.__dict__[color.upper()] + \
+                text + colorama.Style.RESET_ALL
+        else:
+            return text
+    if intensity == 'normal':
+        globals()['_%s' % color] = inner
     else:
-        globals()['%s_%s' % (rgb_to_intensity, name)] = inner
+        globals()['_%s_%s' % (intensity, color)] = inner
 
-if COLOR:
-    intensities = [x for x in colorama.Style.__dict__.keys() if x != 'RESET_ALL']
-    colours = [x for x in colorama.Fore.__dict__.keys() if x != 'RESET']
-else:
-    intensities = ['DIM', 'NORMAL', 'BRIGHT']
-    colours = ['BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE']
 
-for rgb_to_intensity in intensities:
-    for fore in colours:
-        create_color_func(rgb_to_intensity.lower(), fore.lower())
+_intensities = [x for x in colorama.Style.__dict__.keys() if x != 'RESET_ALL']
+_colours = [x for x in colorama.Fore.__dict__.keys() if x != 'RESET']
+
+for _intensity in _intensities:
+    for _fore in _colours:
+        create_color_func(_intensity.lower(), _fore.lower())
 
 
 class TerminalAsker(Asker):
     """Ask the questions using the terminal.
 
-    :param title: The title to display
-    :type title:     str
-    :param preamble: Text to display before the questions
-    :type preamble:  str
-    :param filename: The filename from which to load a set of questions
-    :type filename:  str
+    :param title:       The title to display
+    :type title:        str
+    :param preamble:    Text to display before the questions
+    :type preamble:     str
+    :param ds:          The data stream from which to load a set of questions
+    :type ds:           file
+    :param json_string: JSON string to parse
+    :type json_string:  str
     """
 
     def __init__(self, title, preamble='', ds=None, json_string=None):
@@ -83,11 +80,11 @@ class TerminalAsker(Asker):
 
         self._ask[key] = question
 
-    def go(self, initial_answers):
+    def run(self):
         """Perform the question asking"""
 
-        print(bright_green(self._title))
-        print(bright_green('-' * len(self._title)))
+        print(_bright_green(self._title))
+        print(_bright_green('-' * len(self._title)))
         if self._preamble != '':
             print('\n%s\n' % self._preamble)
 
@@ -95,7 +92,7 @@ class TerminalAsker(Asker):
         try:
             answers = {}
             for key, question in self._ask.items():
-                answer = self._ask_question(question, initial_answers, answers)
+                answer = self._ask_question(question, answers)
                 answers[key] = answer
 
             result[u'answers'] = answers
@@ -105,55 +102,60 @@ class TerminalAsker(Asker):
             try:
                 result[u'result'] = 'cancel'
                 print('\n[Cancelled]\n')
-            except:
+            except Exception: # pylint: disable=broad-except
                 pass
 
         return result
 
-    def _ask_question(self, question, initial_answers, answers):
+    def _ask_question(self, question, answers):
         """Ask a single question"""
 
         prompt_default = ''
-        prompt = [question.label]
-        if question.validator:
-            if question.validator == 'yesno':
-                if not question.label.endswith('(y/n)'):
+        message = question['message']
+        prompt = [_bright_green('[?]'), message]
+        default = question.get('default', None)
+        if default:
+            if question['type'] in ['yesno', 'confirm']:
+                if not message.endswith('(y/n)'):
                     prompt.append('(y/n)')
 
-                if question.default == True or question.default == 'y':
+                if default in [True, 'y', 'Y']:
+                    default = True
                     prompt_default = 'y'
-                elif question.default == False or question.default == 'n':
+                elif default in [False, 'n', 'N']:
+                    default = False
                     prompt_default = 'n'
-                default = Bool()(question.default)
             else:
                 try:
-                    default = question.default.format(**answers)
-                except:
-                    default = question.default
-
-                if question.validator == 'date' and default is None:
-                    default = datetime.date.today()
-                elif question.validator == 'time' and default is None:
-                    default = self._default_time(question.spec)
-                elif question.validator == 'color' and default is None:
-                    default = self._default_color(question.spec)
-                elif question.validator == 'path':
-                    default = os.path.normpath(default)
+                    default = question['default'].format(**answers)
+                except (KeyError, AttributeError):
+                    default = question['default']
 
                 prompt_default = default
+        else:
+            format_ = question.get('format', None)
+            if question['type'] == 'date' and default is None:
+                default = _default_date(format_)
+            elif question['type'] == 'time' and default is None:
+                default = _default_time(format_)
+            elif question['type'] == 'color' and default is None:
+                default = _default_color(format_)
+            elif question['type'] == 'path':
+                default = os.path.normpath(default)
+
+            prompt_default = default
 
         if prompt_default:
-            prompt.append('[%s]' % green(str(prompt_default)))
+            prompt.append('[%s]' % _green(str(prompt_default)))
 
-        validate = self.validator(question.validator,
-                                  question.spec)
+        validator = ama.validator.get_validator(question['type'], question.get('format', None))
 
         prompt = ' '.join(prompt)
         while True:
-            print(prompt, end=': ')
-            if question.validator == 'password':
+            print(prompt, end=' ')
+            if question['type'] == 'password':
                 answer = getpass.getpass('')
-                confirm = question.spec is None or 'noconfirm' not in question.spec
+                confirm = ('format' in question and 'noconfirm' not in question['format']) or True
                 if confirm:
                     print('Please re-enter', end=': ')
                     answer2 = getpass.getpass('')
@@ -163,7 +165,7 @@ class TerminalAsker(Asker):
                 if not confirm or (confirm and answer == answer2):
                     break
                 else:
-                    print(bright_red('Passwords entered do not match.'))
+                    print(_bright_red('Passwords entered do not match.'))
             else:
                 answer = input()
 
@@ -171,33 +173,23 @@ class TerminalAsker(Asker):
                 answer = self._decode_str(answer)
 
                 if answer == '?':
-                    print(question.help_text)
+                    print(question['help'])
                     continue
 
                 if answer == '':
                     answer = default
 
                 try:
-                    answer = validate(answer)
-                except Exception as err:
-                    print(bright_red('* %s\n' % str(err)))
+                    answer = validator(answer)
+                except (ValueError, TypeError) as err:
+                    print(_bright_red('* %s\n' % str(err)))
                     continue
                 break
 
         return answer
 
-    def _default_time(self, value_validator):
-        d = datetime.datetime.now().time()
-        return d.strftime(value_validator)
-
-    def _default_color(self, value_validator):
-        if 'rgbhex' in value_validator:
-            return '#ff0000'
-        else:
-            return 'rgb(1.0, 0.0, 0.0)'
-
     def _decode_str(self, value):
-        if sys.version_info < (3,) and not isinstance(value, unicode):
+        if sys.version_info < (3,) and not isinstance(value, unicode): # pylint: disable=undefined-variable
             # for Python 2.x, try to get a Unicode string out of it
             if value.decode('ascii', 'replace').encode('ascii', 'replace') != value:
                 if self._encoding:
@@ -212,3 +204,26 @@ class TerminalAsker(Asker):
                         value = value.decode('latin1')
 
         return value
+
+
+def _default_date(value_validator):
+    today = datetime.date.today()
+    if value_validator:
+        return today.strftime(value_validator)
+    else:
+        return today
+
+
+def _default_time(value_validator):
+    now = datetime.datetime.now().time()
+    if value_validator:
+        return now.strftime(value_validator)
+    else:
+        return now
+
+
+def _default_color(value_validator):
+    if value_validator and 'rgbhex' in value_validator:
+        return '#ff0000'
+    else:
+        return 'rgb(1.0, 0.0, 0.0)'

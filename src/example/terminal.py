@@ -17,8 +17,8 @@ def test_Terminal():
     preamble = 'Please enter values for the following settings'
 
     filename = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'test.json')
-    with open(filename) as qs:
-        asker = TerminalAsker(title, preamble, ds=qs)
+    with open(filename) as question_stream:
+        asker = TerminalAsker(title, preamble, ds=question_stream)
         new_answers = asker.ask(all_questions=True)
         pprint(new_answers)
 
