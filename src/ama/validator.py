@@ -98,7 +98,7 @@ def str_to_kwargs(string, allowed=None):
 def NonEmpty(*args, **kwargs):
     """Create a validator that checks that any value is provided"""
 
-    msg = _('Please enter anything.')
+    msg = kwargs.get('message', _('Please enter anything.'))
 
     def validate(value):
         if not value:
@@ -663,7 +663,7 @@ def Email(*args, **kwargs):
     """Create a validator that checks that the value is a valid email address.
 
     If the :mod:`pyisemail` module is available then that is used to validate
-    the email address otherwise a regular expression is used (which my produce
+    the email address otherwise a regular expression is used (which may produce
     false positives.)
     """
     def validate(value):
@@ -741,6 +741,7 @@ def get_validator(validator, spec=None):
     :param spec: A specification to modify how the validator works
     :type spec:  str
     """
+    
     if not entry_point_re.match(validator):
         func = validators[validator]
 

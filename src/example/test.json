@@ -43,6 +43,14 @@
     "default": 1.1
 },
 {
+    "type": "float",
+    "name": "float_with_min",
+	"message": "Float minimum = 3.0",
+    "help": "How many items",
+    "default": 4.2,
+    "format": "min=3.0"
+},
+{
     "type": "bool",
     "name": "show_all",
 	"message": "Show everything",

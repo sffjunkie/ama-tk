@@ -78,7 +78,6 @@ class TkAsker(Asker):
         ttk.Style().configure('header.TLabel', font=f)
 
         header = ttk.Label(self._root, text=self._preamble, padding=3,
-                           wraplength=420,
                            style='header.TLabel')
         header.grid(column=0, row=0, sticky=(tk.N, tk.EW))
 

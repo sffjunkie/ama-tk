@@ -44,8 +44,12 @@ def create_color_func(intensity, color):
         globals()['_%s_%s' % (intensity, color)] = inner
 
 
-_intensities = [x for x in colorama.Style.__dict__.keys() if x != 'RESET_ALL']
-_colours = [x for x in colorama.Fore.__dict__.keys() if x != 'RESET']
+if COLOR:
+    _intensities = [x for x in colorama.Style.__dict__.keys() if x != 'RESET_ALL']
+    _colours = [x for x in colorama.Fore.__dict__.keys() if x != 'RESET']
+else:
+    _intensities = ['DIM', 'NORMAL', 'BRIGHT']
+    _colors = ['BLACK', 'MAGENTA', 'CYAN', 'GREEN', 'YELLOW', 'WHITE', 'RED', 'BLUE']
 
 for _intensity in _intensities:
     for _fore in _colours:

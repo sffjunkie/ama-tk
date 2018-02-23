@@ -192,14 +192,17 @@ def test_validate_float_string():
 
 def test_validate_float_fail():
     v = get_validator('float')
-    with raises(TypeError):
-        v(1)
-
-    with raises(ValueError):
-        v('1')
-
     with raises(ValueError):
         v('wally')
+
+
+def test_validate_float_nocoercefail():
+    v = get_validator('float')
+    with raises(TypeError):
+        v(1, nocoerce=True)
+
+    with raises(ValueError):
+        v('1', nocoerce=True)
 
 
 def test_validate_float_decimal():
@@ -211,7 +214,7 @@ def test_validate_float_min():
     v = get_validator('float', 'min=3.1')
     assert v(3.1) == 3.1
 
-    with raises(TypeError):
+    with raises(ValueError):
         v(3)
 
 
@@ -227,7 +230,7 @@ def test_validate_float_minmax():
     v = get_validator('float', 'min=3.1|max=4')
     assert v(3.1) == 3.1
 
-    with raises(TypeError):
+    with raises(ValueError):
         v(3)
 
 
@@ -235,7 +238,7 @@ def test_validate_float_minmaxdecimal():
     v = get_validator('float', 'min=3.1|max=4|decimal=i')
     assert v('3i1') == 3.1
 
-    with raises(TypeError):
+    with raises(ValueError):
         v(3)
 
     with raises(ValueError):

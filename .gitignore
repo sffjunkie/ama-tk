@@ -1,5 +1,10 @@
+MANIFEST
 setup.cfg
 tox.ini
+.bzrignore
+.cache
+.coverage
+.settings
 
 # Numerous always-ignore extensions
 *.diff
@@ -16,21 +21,26 @@ tox.ini
 *.egg-info
 
 
-# OS or Editor folders
+# OS folders
 .DS_Store
 Thumbs.db
-.cache
-.coverage
-.project
-.pydevproject
-.settings
+
+# Editor folders
 .tmproj
 *.esproj
 nbproject
+
+# Sublime Text
 *.sublime-project
 *.sublime-workspace
+
+#IntelliJ
 *.iml
-MANIFEST
+
+# Eclipse + PyDev
+.project
+.pydevproject
+
 
 # Dreamweaver added files
 _notes

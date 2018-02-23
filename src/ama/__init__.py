@@ -20,9 +20,11 @@ else:
 
 class Asker(object):
     """An object which mediates the question asking.
+    
+    Either `ds` or `json_string` should be provided but not both.
 
     :param ds: A datastream to read the questions from
-    :type ds:  Any object with a read metod
+    :type ds:  Any object with a read method
     :param json_string: A JSON formatted string to load the questions from
     :type json_string: str
     """
@@ -51,10 +53,10 @@ class Asker(object):
         :param questions: The questions to prompt for answers. Can either be
                           a json formatted string or a dict subclass
         :type questions:  string or dict
-        :param initial_answers:   A dictionary containing the already answered
-                          questions
-        :type initial_answers:    dict
-        :param all_questions: If True only the already unanswered questions
+        :param initial_answers: A dictionary containing the already answered
+                                questions
+        :type initial_answers:  dict
+        :param all_questions: If True (default) only the already unanswered questions
                               will be asked; if False all questions will be
                               asked.
         :type all_questions:  bool

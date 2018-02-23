@@ -8,13 +8,13 @@ _HIDDEN = False
 
 def show():
     """Show the cursor"""
-    _HIDDEN = False
     sys.stdout.write('\u001b[?25h')
+    _HIDDEN = False
 
 def hide():
     """Hide the cursor"""
-    _HIDDEN = True
     sys.stdout.write('\u001b[?25l')
+    _HIDDEN = True
 
 def toggle(force=None):
     """Toggle the cursor"""

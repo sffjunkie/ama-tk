@@ -17,6 +17,8 @@ import sys
 import os.path
 from setuptools import setup
 
+import monkeypatch
+
 def read(*names, **kwargs):
     return io.open(
         os.path.join(os.path.dirname(__file__), *names),
@@ -26,16 +28,20 @@ def read(*names, **kwargs):
 setup(name='ama',
     version='0.2',
     description="""Module to ask a set of questions from the user and return a set of answers.""",
-    long_description=read('README'),
+    long_description=read('README.rst'),
     author='Simon Kennedy',
     author_email='sffjunkie+code@gmail.com',
     url="https://github.com/sffjunkie/ama",
     license='Apache-2.0',
     package_dir={'': 'src'},
     py_modules=['ama.terminal', 'ama.tk', 'ama.validator'],
-	install_requires=['babel', 'cerberus', 'tks'],
+	install_requires=[
+        'babel',
+        'cerberus',
+        'tks',
+        'pyreadline ; sys_platform == "win32"',
+        'colorama ; sys_platform == "win32"'],
     extras_require={
-        'color': ['colorama'],
         'date_picker': ['tks'],
         'time_picker': ['tks'],
     },
