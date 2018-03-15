@@ -1,2 +1,4 @@
 include ama/icon.gif
 include monkeypatch.py
+include LICENSE
+
