@@ -10,7 +10,7 @@ Asker
 
 .. autoclass:: Asker
    :members:
-   :member-order: bysource 
+   :member-order: bysource
 
 ama.terminal
 ------------
@@ -22,7 +22,7 @@ TerminalAsker
 
 .. autoclass:: ama.terminal.TerminalAsker
    :members:
-   :member-order: bysource 
+   :member-order: bysource
 
 ama.tk
 ------
@@ -34,11 +34,11 @@ TkAsker
 
 .. autoclass:: ama.tk.TkAsker
    :members:
-   :member-order: bysource 
+   :member-order: bysource
 
 TkQuestion
 ~~~~~~~~~~
 
 .. autoclass:: ama.tk.TkQuestion
    :members:
-   :member-order: bysource 
+   :member-order: bysource

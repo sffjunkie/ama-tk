@@ -14,10 +14,10 @@ Currently you have 2 choices in how to ask the questions...
 
    |terminal_image|
 
-2. Using a Tkinter interface. 
+2. Using a Tkinter interface.
 
    |tk_image|
-   
+
    The Tk interface has a few niceties; dialogs to select paths, dynamic
    updating of values based on others, a validation indication etc.
 
@@ -26,7 +26,7 @@ Currently you have 2 choices in how to ask the questions...
 
 both generated from the same JSON file.
 
-    
+
 License
 =======
 
@@ -34,9 +34,9 @@ This module is licensed under the terms of the `Apache`_ V2.0 license.
 
 Contact
 =======
-    
+
 Simon Kennedy <sffjunkie+code@gmail.com>
-    
+
 Version History
 ===============
 
@@ -49,13 +49,13 @@ Version  Description
 -------- -----------------------------------------------------------------------
 0.1      Initial version with terminal and Tkinter support
 ======== =======================================================================
-    
+
 .. toctree::
    :maxdepth: 2
    :hidden:
 
    json
-   validation   
+   validation
    module
    module_validator
 

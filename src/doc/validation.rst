@@ -6,7 +6,7 @@ Validation
 ----------
 
 .. _basic_types:
-   
+
 Types
 ~~~~~
 
@@ -43,41 +43,41 @@ The types available are
 
 ``float``
     Can it be converted to a float.
-    
+
 ``path``
     Verifies that the value is a valid path. Varoius specs can be provided to
     modify the path validation
-    
+
     ``empty``
         verifies that the path is empty
-        
+
     ``nonempty``
         verifies that at least one file is found in the path
-        
+
     ``new``
         verifies that the path does not exist and is a valid path name
-        
+
     :samp:`{pathspec}`
         Verifies that the path conforms to the :samp:`{pathspec}` given
         (:ref:`see below <path_spec>`)
-    
+
 ``date``
     Verifies that a valid date is provided that matches the *datespec* where
     *datespec* follows the standard Python :meth:`~datetime.datetime.strptime`
     format string. If no specification is provided then ``%Y-%m-%d`` will be used.
-                           
+
 ``time``
     Verifies that the time is a valid time that matches the *timespec* where
     *timespec* follows the standard Python :meth:`~datetime.datetime.strptime`
     format string. If no specification is provided then ``%H:%M`` will be used.
-                           
+
 ``color``
     Verifies that the value is a valid color that matches the *colorspec* where
     *colorspec* is either ``rgb`` or ``rgbhex``
 
 ``re``
     Verifies that the value specified matches the regular expression.
-    
+
 Entry Point
     If a setuptools entry point is specified then it will be loaded and used
     to validate the entry.
@@ -91,7 +91,7 @@ Path specs contain multiple :mod:`glob` patterns separated by commas each
 preceded by either a plus or minus sign.
 
 A plus sign (``+``) indicates that a file matching the glob must be in the
-directory. 
+directory.
 
 A minus sign (``-``) indicates that a file matching the glob must not be in the
 directory.
