@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "ama"
+version = "0.2.1"
+description = "Module to ask a set of questions from the user and return a set of answers."
+authors = ["Simon Kennedy <sffjunkie+code@gmail.com>"]
+license = "Apache-2.0"
+readme = "README.rst"
+documentation = "https://ama.readthedocs.io/en/stable/index.html"
+repository = "https://github.com/sffjunkie/ama"
+classifiers = [
+	"Intended Audience :: Developers",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3.6",
+	"Programming Language :: Python :: 3.7",
+	"Programming Language :: Python :: 3.8",
+	"Programming Language :: Python :: 3.9",
+	"Programming Language :: Python :: 3.10",
+]
+packages = [
+	{ include = "ama", from = "src"}
+]
+include = [
+    { path = "src/doc", format = "sdist" },
+    { path = "src/example", format = "sdist" },
+    { path = "src/test", format = "sdist" },
+]
+
+[tool.poetry.dependencies]
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+tox = "*"
+pylint = "^2.4.4"
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
+]
+junit_family = "xunit2"
+norecursedirs = [
+	".venv",
+    ".git",
+    ".tox",
+    ".cache",
+    ".settings",
+    "dist",
+    "build",
+    "docs"
+]
+
+[tool.isort]
+profile = "black"
+lines_between_sections = 1
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
