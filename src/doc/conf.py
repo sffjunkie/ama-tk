@@ -96,24 +96,23 @@ pygments_style = 'sphinx'
 # -- Options for HTML output ---------------------------------------------------
 
 if not on_rtd:
-    project_home = os.environ.get('PROJECT_HOME', None)
+    project_home = os.environ.get("PROJECT_HOME", None)
     if not project_home:
-        dev_home = os.environ.get('DEV_HOME', None)
+        dev_home = os.environ.get("DEV_HOME", None)
         if dev_home:
-            project_home = os.path.join(os.path.expanduser(dev_home), 'projects')
+            project_home = os.path.join(os.path.expanduser(dev_home), "projects")
     else:
         project_home = os.path.expanduser(project_home)
 
+    html_theme = None
     if project_home:
-        theme_root = os.path.join(project_home, 'sphinx-theme', 'sffjunkie', 'trunk')
-        html_theme_path = [theme_root]
-    else:
-        raise OSError('Unable to find theme root: Please set the PROJECT_HOME environment variable')
+        theme_root = os.path.relpath(os.path.join(project_home, "themes", "sphinx"))
+        if os.path.exists(theme_root):
+            html_theme_path = [theme_root]
+            html_theme = "sffjunkie"
 
-    html_theme = 'sffjunkie'
-    html_theme_options = {'logo_shadow': True, 'fixed_header': False}
-else:
-    html_theme = 'default'
+    if not html_theme:
+        html_theme = "traditional"
 
 
 # Theme options are theme-specific and customize the look and feel of a theme

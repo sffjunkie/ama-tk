@@ -1,51 +1,48 @@
 [tool.poetry]
-name = "ama"
-version = "0.2.1"
-description = "Module to ask a set of questions from the user and return a set of answers."
+name = "ama-tk"
+version = "0.1.0"
+description = "Tkinter based Asker."
 authors = ["Simon Kennedy <sffjunkie+code@gmail.com>"]
 license = "Apache-2.0"
 readme = "README.rst"
-documentation = "https://ama.readthedocs.io/en/stable/index.html"
-repository = "https://github.com/sffjunkie/ama"
+repository = "https://github.com/sffjunkie/ama-tk"
 classifiers = [
-	"Intended Audience :: Developers",
-	"Programming Language :: Python",
-	"Programming Language :: Python :: 3.6",
-	"Programming Language :: Python :: 3.7",
-	"Programming Language :: Python :: 3.8",
-	"Programming Language :: Python :: 3.9",
-	"Programming Language :: Python :: 3.10",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
 ]
-packages = [
-	{ include = "ama", from = "src"}
-]
-include = [
-    { path = "src/doc", format = "sdist" },
-    { path = "src/example", format = "sdist" },
-    { path = "src/test", format = "sdist" },
-]
+packages = [{ include = "ama_tk", from = "src" }]
+
+[tool.poetry.plugins.ama]
+"tkinter" = "ama_tk.asker"
 
 [tool.poetry.dependencies]
+python = "^3.9"
+babel = "*"
+cerberus = "*"
+tks = { version = "*" }
+ama = { path = "../ama" }
+Pillow = "^9.2.0"
+customtkinter = "^4.6.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
 tox = "*"
-pylint = "^2.4.4"
 
 [tool.pytest.ini_options]
-pythonpath = [
-    "src"
-]
+pythonpath = ["src"]
 junit_family = "xunit2"
 norecursedirs = [
-	".venv",
+    ".venv",
     ".git",
     ".tox",
     ".cache",
     ".settings",
     "dist",
     "build",
-    "docs"
+    "docs",
 ]
 
 [tool.isort]
