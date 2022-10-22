@@ -1,3 +1,4 @@
+/docs
 MANIFEST
 setup.cfg
 tox.ini
@@ -5,6 +6,10 @@ tox.ini
 .cache
 .coverage
 .settings
+.pytest_cache
+
+.venv
+poetry.toml
 
 # Numerous always-ignore extensions
 *.diff
@@ -19,7 +24,6 @@ tox.ini
 *~
 *.sass-cache
 *.egg-info
-
 
 # OS folders
 .DS_Store
@@ -40,7 +44,6 @@ nbproject
 # Eclipse + PyDev
 .project
 .pydevproject
-
 
 # Dreamweaver added files
 _notes
